@@ -1,0 +1,14 @@
+{
+"id": 1,
+"path": "serv2",
+"method":"GET",
+"sqlType":"SELECT",
+"parameters": [{
+	"type":"PATH_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the table"
+	}],
+"sql":"SELECT * FROM pg_tables",
+"description":"All table names in the database"
+}

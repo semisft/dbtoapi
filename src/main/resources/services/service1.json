@@ -1,0 +1,9 @@
+{
+"id": 1,
+"path": "serv1",
+"method":"GET",
+"sqlType":"SELECT",
+"parameters": [],
+"sql":"SELECT * FROM pg_tables",
+"description":"All table names in the database"
+}
