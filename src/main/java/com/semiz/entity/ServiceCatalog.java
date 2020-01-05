@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.io.FileUtils;
@@ -51,7 +53,7 @@ public class ServiceCatalog {
 		this.items = items;
 	}
 
-	public ServiceItem getItem(String id) {
+	public ServiceItem getItem(Integer id) {
 		return this.items.get(id);
 	}
 
@@ -62,14 +64,16 @@ public class ServiceCatalog {
 
 	@PostConstruct
 	public void loadServices() {
+		File resourceFile = null;
 		try {
 			List<File> resourceFiles = getResourceFiles(this.servicesPath);
-			for (File resourceFile : resourceFiles) {
+			for (Iterator iterator = resourceFiles.iterator(); iterator.hasNext();) {
+				resourceFile = (File) iterator.next();
 				ServiceItem item = toServiceItem(new FileInputStream(resourceFile));
+				this.items.put(item.getId(), item);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.errorf("Error on loading service file: %s", resourceFile);
 		}
 	}
 
@@ -117,9 +121,9 @@ public class ServiceCatalog {
 	}
 
 	private ServiceItem toServiceItem(InputStream is) {
-		JsonReader parser = Json.createReader(is);
-		JsonObject object = parser.readObject();
-		return null;
+		Jsonb jsonb = JsonbBuilder.create();
+		ServiceItem result = jsonb.fromJson(is, ServiceItem.class);
+		return result;
 	}
 
 }

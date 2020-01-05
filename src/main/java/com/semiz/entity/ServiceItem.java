@@ -3,6 +3,7 @@ package com.semiz.entity;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -10,15 +11,15 @@ import com.semiz.db.boundary.DbConnection;
 import com.semiz.db.entity.QueryResult;
 
 public class ServiceItem {
-	
+
 	Integer id;
 	String path;
-	
-	RestMethod method;
+
+	String httpMethod;
 	List<ServiceItemParameter> parameters;
 	ServiceItemSqlType sqlType;
 	String sql;
-	
+
 	public ServiceItem() {
 
 	}
@@ -63,18 +64,23 @@ public class ServiceItem {
 		this.sql = sql;
 	}
 
-	public QueryResult getSqlExecResult(
-			DbConnection conn,
-			MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, 
-			Map bodyParameters) {
+	public String getHttpMethod() {
+		return httpMethod;
+	}
+
+	public void setHttpMethod(String httpMethod) {
+		this.httpMethod = httpMethod;
+	}
+
+	public QueryResult getSqlExecResult(DbConnection conn, MultivaluedMap<String, String> pathParameters,
+			MultivaluedMap<String, String> queryParameters, Map bodyParameters) {
 		MultivaluedMap<String, String> allParameters = new MultivaluedHashMap<>();
 		allParameters.putAll(pathParameters);
 		allParameters.putAll(queryParameters);
 		if (bodyParameters != null) {
 			allParameters.putAll(bodyParameters);
 		}
-		
+
 		return conn.select(this.sql, allParameters);
 	}
 

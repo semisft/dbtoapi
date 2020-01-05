@@ -1,14 +1,12 @@
 package com.semiz.boundary;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -46,27 +44,23 @@ public class QueryResultFilter implements ContainerResponseFilter {
 		final String path = uriInfo.getPath();
 		final String address = request.remoteAddress().toString();
 
-		JsonObject bodyParameters = null;
+		Map bodyParameters = null;
 		if (context.getMediaType() != null && context.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
 			String json = IOUtils.toString(context.getEntityStream(), StandardCharsets.UTF_8);
 			if (json != null && json.length() > 0) {
-				try (JsonReader parser = Json.createReader(new StringReader(json))) {
-					bodyParameters = parser.readObject();
-				} catch (Exception e) {
-					LOG.error("Exception while trying to get body parameters ", e);
-				}
+				Jsonb jsonb = JsonbBuilder.create();
+				bodyParameters = jsonb.fromJson(json, Map.class);
 			}
 		}
-		String confId = (String) responseContext.getEntity();
+		Integer confId = (Integer) responseContext.getEntity();
 
-		LOG.infof("%s Request %s %s from IP %s-%s %s", bodyParameters, method, path, address, context.getEntityStream(),
-				confId);
+		LOG.info(confId+ " found.");
 
 		ServiceItem item = catalog.getItem(confId);
 		QueryResult result = null;
 		if (item != null) {
 			result = catalog.getSqlExecResult(item, uriInfo.getPathParameters(), uriInfo.getQueryParameters(),
-					(Map) bodyParameters);
+					bodyParameters);
 		} else {
 			result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
 			responseContext.setStatus(412);

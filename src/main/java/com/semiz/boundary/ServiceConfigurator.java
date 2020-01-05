@@ -1,34 +1,47 @@
 package com.semiz.boundary;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.QueryParam;
+import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.Registry;
-import org.jboss.resteasy.spi.metadata.DefaultResourceLocator;
 import org.jboss.resteasy.spi.metadata.ResourceLocator;
 import org.jboss.resteasy.spi.metadata.ResourceMethod;
 
 import com.semiz.entity.ConfiguredResourceClass;
 import com.semiz.entity.ConfiguredResourceMethod;
+import com.semiz.entity.ServiceCatalog;
+import com.semiz.entity.ServiceItem;
 
 @ApplicationScoped
 public class ServiceConfigurator {
 	
-	
+	private static final Logger LOG = Logger.getLogger(ServiceConfigurator.class);
+
+	@Inject
+	ServiceCatalog serviceCatalog;
+
 	public void initRegistry(Registry registry) {
-		ConfiguredResourceClass resource = configured();
-		registry.addSingletonResource(resource, resource);
-		System.out.println("Registry initialized:" + registry);
+		int count = 0;
+		for (ServiceItem serviceItem : serviceCatalog.getItems().values()) {
+			try {
+				ConfiguredResourceClass resource = getResourceClass(serviceItem);
+				registry.addSingletonResource(resource, resource);	
+				count++;
+			} catch (Exception e) {
+				LOG.errorf("Error on initializing service %s, please check configuration.", serviceItem.getPath());
+			}
+		}
+		LOG.infof("Registry initialized with %s number of services", count);
 	}
-	
-	private ConfiguredResourceClass configured() {
+
+	private ConfiguredResourceClass getResourceClass(ServiceItem item) {
 		ConfiguredResourceClass result = new ConfiguredResourceClass(String.class, "/");
+		result.setId(item.getId());
 
 		Method actualMethod;
 		try {
@@ -36,29 +49,12 @@ public class ServiceConfigurator {
 			ConfiguredResourceMethod method = new ConfiguredResourceMethod(result, actualMethod, actualMethod);
 			method.setConsumes(MediaType.APPLICATION_JSON_TYPE);
 			method.setProduces(MediaType.APPLICATION_JSON_TYPE);
-			method.setFullpath("/dinamik5");
-			method.setPath("/dinamik5");
+			method.setFullpath(item.getPath());
+			method.setPath(method.getPath());
 			method.setGenericReturnType(Response.class);
-			method.setHttpMethods(HttpMethod.GET);
+			method.setHttpMethods(item.getHttpMethod());
 			method.setResourceClass(result);
 			method.setReturnType(Response.class);
-
-			Annotation annotation = new QueryParam() {
-				@Override
-				public Class<? extends Annotation> annotationType() {
-					return QueryParam.class;
-				}
-
-				@Override
-				public String value() {
-					return "param 1 value";
-				}
-			};
-			DefaultResourceLocator locator = new DefaultResourceLocator(result, actualMethod, actualMethod);
-			// ConfiguredMethodParameter params = new ConfiguredMethodParameter(locator,
-			// "param1", String.class, String.class.getGenericSuperclass(), new Annotation[]
-			// {annotation});
-			// method.setParams(params);
 
 			result.setResourceMethods(new ResourceMethod[] { method });
 

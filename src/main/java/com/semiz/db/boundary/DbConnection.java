@@ -11,6 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 import com.semiz.db.entity.NamedParameterPreparedStatement;
 import com.semiz.db.entity.ParameterException;
@@ -56,7 +57,7 @@ public class DbConnection {
 
 			}
 			result.setColumns(columnNames);
-
+			result.setResultCode(Response.Status.OK.getStatusCode());
 		} catch (Exception e) {
 			throw new ParameterException(lastEntry.getKey(), lastEntry.getValue(), e.getMessage());
 		}
