@@ -28,11 +28,7 @@ public class Service {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response catchAllGet(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-		System.out.println(uriInfo.getMatchedURIs());
-		System.out.println(uriInfo.getMatchedResources());
-//		ServiceItem item = catalog.getItem(RestMethod.GET, uriInfo.getAbsolutePath().toString());
-//		return catalog.getSqlExecResult(item, uriInfo.getPathParameters(), uriInfo.getQueryParameters(), null);
-		return Response.ok("test id..").build();
+		return Response.ok("No service configured for:"+uriInfo.getPath()).build();
 	}
 
 

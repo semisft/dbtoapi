@@ -19,18 +19,18 @@ import com.semiz.entity.ServiceItem;
 
 @ApplicationScoped
 public class ServiceConfigurator {
-	
+
 	private static final Logger LOG = Logger.getLogger(ServiceConfigurator.class);
 
 	@Inject
 	ServiceCatalog serviceCatalog;
-
+	
 	public void initRegistry(Registry registry) {
 		int count = 0;
 		for (ServiceItem serviceItem : serviceCatalog.getItems().values()) {
 			try {
 				ConfiguredResourceClass resource = getResourceClass(serviceItem);
-				registry.addSingletonResource(resource, resource);	
+				registry.addSingletonResource(resource, resource);
 				count++;
 			} catch (Exception e) {
 				LOG.errorf("Error on initializing service %s, please check configuration.", serviceItem.getPath());
@@ -57,12 +57,9 @@ public class ServiceConfigurator {
 			method.setReturnType(Response.class);
 
 			result.setResourceMethods(new ResourceMethod[] { method });
-
 			result.setResourceLocators(new ResourceLocator[] {});
-
 		} catch (Exception e) {
-
-			e.printStackTrace();
+			LOG.errorf("Error on initializing service resource %s, please check configuration.", item.getPath());
 		}
 
 		return result;

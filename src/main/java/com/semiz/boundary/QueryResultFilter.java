@@ -52,19 +52,24 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				bodyParameters = jsonb.fromJson(json, Map.class);
 			}
 		}
-		Integer confId = (Integer) responseContext.getEntity();
-
-		LOG.info(confId+ " found.");
-
-		ServiceItem item = catalog.getItem(confId);
-		QueryResult result = null;
-		if (item != null) {
-			result = catalog.getSqlExecResult(item, uriInfo.getPathParameters(), uriInfo.getQueryParameters(),
-					bodyParameters);
-		} else {
-			result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
-			responseContext.setStatus(412);
+		Object confIdStr = responseContext.getEntity();
+		
+		if (confIdStr != null && confIdStr.getClass().equals(Integer.class)) {
+		
+			Integer confId = (Integer) confIdStr;
+	
+			LOG.info(confId+ " found.");
+	
+			ServiceItem item = catalog.getItem(confId);
+			QueryResult result = null;
+			if (item != null) {
+				result = catalog.getSqlExecResult(item, uriInfo.getPathParameters(), uriInfo.getQueryParameters(),
+						bodyParameters);
+			} else {
+				result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
+				responseContext.setStatus(412);
+			}
+			responseContext.setEntity(result, null, MediaType.APPLICATION_JSON_TYPE);
 		}
-		responseContext.setEntity(result, null, MediaType.APPLICATION_JSON_TYPE);
 	}
 }

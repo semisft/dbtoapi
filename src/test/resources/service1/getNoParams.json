@@ -1,0 +1,9 @@
+{
+"id": 1,
+"path": "/serv1",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [],
+"sql":"SELECT * FROM FRUIT",
+"description":"All fruits"
+}

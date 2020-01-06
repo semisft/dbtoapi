@@ -59,7 +59,7 @@ public class DbConnection {
 			result.setColumns(columnNames);
 			result.setResultCode(Response.Status.OK.getStatusCode());
 		} catch (Exception e) {
-			throw new ParameterException(lastEntry.getKey(), lastEntry.getValue(), e.getMessage());
+			throw new ParameterException(lastEntry !=null?lastEntry.getKey():"", lastEntry!=null?lastEntry.getValue():"", e.getMessage());
 		}
 
 		return result;
