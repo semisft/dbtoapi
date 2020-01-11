@@ -1,11 +1,11 @@
 {
-"id": 9,
-"path": "/service9POSTQueryBodyParam",
-"httpMethod":"POST",
+"id": 8,
+"path": "/service8PUTPathBodyParam/{id}",
+"httpMethod":"PUT",
 "sqlType":"UPDATE",
 "parameters": [
 	{
-	"type":"QUERY_PARAM",
+	"type":"PATH_PARAM",
 	"name":"id",
 	"dataType":"INTEGER",
 	"description":"The unique id of the fruit"

@@ -4,15 +4,21 @@
 "httpMethod":"POST",
 "consumes":"text/plain",
 "produces":"application/json",
-"sqlType":"SELECT",
+"sqlType":"INSERT",
 "parameters": [
 	{
 	"type":"BODY_PARAM",
 	"name":"id",
 	"dataType":"INTEGER",
 	"description":"The unique id of the table"
+	},
+	{
+	"type":"BODY_PARAM",
+	"name":"name",
+	"dataType":"STRING",
+	"description":"The unique id of the table"
 	}
 ],
-"sql":"SELECT * FROM FRUIT WHERE id=:id",
-"description":"All fruits"
+"sql":"INSERT INTO FRUIT(id, name) VALUES(:id,:name)",
+"description":"Insert new fruit"
 }

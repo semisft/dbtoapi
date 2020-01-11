@@ -3,7 +3,6 @@ package com.semiz.boundary;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +63,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				Map map = jsonb.fromJson(body, Map.class);
 				bodyParameters.putAll(map);
 			} else {
-				String[] lines = body.split("\n");
+				String[] lines = body.split("&");
 				for (String line : lines) {
 					String[] keyValue = line.split("=");
 					bodyParameters.put(keyValue[0], keyValue[1]);

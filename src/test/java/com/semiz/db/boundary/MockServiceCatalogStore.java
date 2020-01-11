@@ -21,9 +21,11 @@ public class MockServiceCatalogStore implements ServiceCatalogStore {
 			"/service7GETPathQueryParam/conf.json",
 			"/service3GETQueryParam/conf.json",
 			"/service4POSTBodyParam/conf.json",
-			"/service8POSTPathBodyParam/conf.json",
-			"/service9POSTQueryBodyParam/conf.json",
+			"/service8PUTPathBodyParam/conf.json",
+			"/service9PUTQueryBodyParam/conf.json",
 			"/service5POSTFormParam/conf.json",
+			"/service10PATCHPathBodyParam/conf.json",
+			"/service11DELETEPathParam/conf.json",
 	};
 	@Override
 	public List<ServiceItem> loadServices() {

@@ -18,7 +18,7 @@ import io.restassured.http.ContentType;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class Serv8Test extends BaseTest {
 	
-	private static final String SERVICE_NAME = "/service8POSTPathBodyParam";
+	private static final String SERVICE_NAME = "/service8PUTPathBodyParam";
 
 	private static String payload = "{" +
 	        "  \"name\": \"Sour-cherry\""+
@@ -29,7 +29,7 @@ public class Serv8Test extends BaseTest {
 		when().
 		contentType(ContentType.JSON).
         body(payload).
-        post("/api"+SERVICE_NAME+"/{id}", 3).
+        put("/api"+SERVICE_NAME+"/{id}", 3).
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));

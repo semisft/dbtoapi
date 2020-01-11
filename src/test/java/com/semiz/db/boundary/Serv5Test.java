@@ -29,6 +29,7 @@ public class Serv5Test extends BaseTest {
 		contentType(ContentType.TEXT).
 		urlEncodingEnabled(true).
         formParam("id", 2).
+        formParam("name", "Apricot").
         post("/api"+SERVICE_NAME).
 		then().
 		statusCode(200).and().

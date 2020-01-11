@@ -16,21 +16,16 @@ import io.restassured.http.ContentType;
 
 @TransactionalQuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class Serv9Test extends BaseTest {
+public class Serv11Test extends BaseTest {
 	
-	private static final String SERVICE_NAME = "/service9PUTQueryBodyParam";
+	private static final String SERVICE_NAME = "/service11DELETEPathParam";
 
-	private static String payload = "{" +
-	        "  \"name\": \"Sour-cherry\""+
-	        "}";
 	@Test
 	public void testHelloEndpoint() throws IOException {
 		given().
 		when().
 		contentType(ContentType.JSON).
-        body(payload).
-        queryParam("id", 3).
-        put("/api"+SERVICE_NAME).
+        delete("/api"+SERVICE_NAME + "/{id}", 3).
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));

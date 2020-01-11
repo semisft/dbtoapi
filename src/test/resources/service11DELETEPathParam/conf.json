@@ -1,0 +1,16 @@
+{
+"id": 11,
+"path": "/service11DELETEPathParam/{id}",
+"httpMethod":"DELETE",
+"sqlType":"DELETE",
+"parameters": [
+	{
+	"type":"PATH_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the fruit"
+	}
+],
+"sql":"DELETE FROM FRUIT WHERE id=:id",
+"description":"Delete a fruit"
+}

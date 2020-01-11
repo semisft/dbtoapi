@@ -16,9 +16,9 @@ import io.restassured.http.ContentType;
 
 @TransactionalQuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class Serv9Test extends BaseTest {
+public class Serv10Test extends BaseTest {
 	
-	private static final String SERVICE_NAME = "/service9PUTQueryBodyParam";
+	private static final String SERVICE_NAME = "/service10PATCHPathBodyParam";
 
 	private static String payload = "{" +
 	        "  \"name\": \"Sour-cherry\""+
@@ -29,8 +29,7 @@ public class Serv9Test extends BaseTest {
 		when().
 		contentType(ContentType.JSON).
         body(payload).
-        queryParam("id", 3).
-        put("/api"+SERVICE_NAME).
+        patch("/api"+SERVICE_NAME + "/{id}", 3).
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));

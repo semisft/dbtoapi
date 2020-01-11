@@ -1,7 +1,7 @@
 {
-"id": 8,
-"path": "/service8POSTPathBodyParam/{id}",
-"httpMethod":"POST",
+"id": 10,
+"path": "/service10PATCHPathBodyParam/{id}",
+"httpMethod":"PATCH",
 "sqlType":"UPDATE",
 "parameters": [
 	{
