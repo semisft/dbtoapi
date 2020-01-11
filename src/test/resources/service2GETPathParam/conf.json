@@ -1,0 +1,16 @@
+{
+"id": 2,
+"path": "/service2GETPathParam/{id}",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [
+	{
+	"type":"PATH_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the table"
+	}
+],
+"sql":"SELECT * FROM FRUIT WHERE id=:id",
+"description":"All fruits"
+}

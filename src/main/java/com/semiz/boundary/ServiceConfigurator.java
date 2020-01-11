@@ -47,15 +47,14 @@ public class ServiceConfigurator {
 		try {
 			actualMethod = ConfiguredResourceClass.class.getMethod("actualMethod");
 			ConfiguredResourceMethod method = new ConfiguredResourceMethod(result, actualMethod, actualMethod);
-			method.setConsumes(MediaType.APPLICATION_JSON_TYPE);
-			method.setProduces(MediaType.APPLICATION_JSON_TYPE);
+			method.setConsumes(toMediaType(item.getConsumes(), MediaType.APPLICATION_JSON_TYPE));
+			method.setProduces(toMediaType(item.getProduces(), MediaType.APPLICATION_JSON_TYPE));
 			method.setFullpath(item.getPath());
 			method.setPath(method.getPath());
 			method.setGenericReturnType(Response.class);
 			method.setHttpMethods(item.getHttpMethod());
 			method.setResourceClass(result);
 			method.setReturnType(Response.class);
-
 			result.setResourceMethods(new ResourceMethod[] { method });
 			result.setResourceLocators(new ResourceLocator[] {});
 		} catch (Exception e) {
@@ -64,5 +63,15 @@ public class ServiceConfigurator {
 
 		return result;
 
+	}
+
+	private MediaType toMediaType(String mediaTypeStr, MediaType defaultMediaType) {
+		if (mediaTypeStr == null || mediaTypeStr.trim().length()<1) {
+			return defaultMediaType;
+		}
+		else {
+			String[] typeSubType = mediaTypeStr.split("/");
+			return new MediaType(typeSubType[0], typeSubType[1]);
+		}
 	}
 }

@@ -28,7 +28,7 @@ public class Service {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response catchAllGet(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-		return Response.ok("No service configured for:"+uriInfo.getPath()).build();
+		return Response.ok("No service configured for "+uriInfo.getPath()).build();
 	}
 
 

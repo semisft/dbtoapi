@@ -1,6 +1,6 @@
 {
 "id": 1,
-"path": "/serv1",
+"path": "/service1GETNoParams",
 "httpMethod":"GET",
 "sqlType":"SELECT",
 "parameters": [],

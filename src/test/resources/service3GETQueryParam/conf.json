@@ -1,0 +1,16 @@
+{
+"id": 3,
+"path": "/service3GETQueryParam",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [
+	{
+	"type":"QUERY_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the table"
+	}
+],
+"sql":"SELECT * FROM FRUIT WHERE id=:id",
+"description":"All fruits"
+}

@@ -13,11 +13,21 @@ import io.quarkus.test.Mock;
 @Mock
 @ApplicationScoped 
 public class MockServiceCatalogStore implements ServiceCatalogStore {
+	
+	private static String[] CONFS = new String[] {
+			"/service1GETNoParams/conf.json",
+			"/service2GETPathParam/conf.json",
+			"/service3GETQueryParam/conf.json",
+			"/service4POSTBodyParam/conf.json",
+			"/service5POSTFormParam/conf.json",
+	};
 	@Override
 	public List<ServiceItem> loadServices() {
 		List<ServiceItem> result = new ArrayList<>();
-		ServiceItem item = toServiceItem(getClass().getResourceAsStream("/service1/getNoParams.json"));
-		result.add(item);
+		for(String conf : CONFS) {
+			ServiceItem item = toServiceItem(getClass().getResourceAsStream(conf));
+			result.add(item);
+		}
 		return result;
 	}
 }

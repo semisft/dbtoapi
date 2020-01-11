@@ -1,7 +1,10 @@
 package com.semiz.boundary;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -44,22 +47,40 @@ public class QueryResultFilter implements ContainerResponseFilter {
 		final String path = uriInfo.getPath();
 		final String address = request.remoteAddress().toString();
 
-		Map bodyParameters = null;
-		if (context.getMediaType() != null && context.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
-			String json = IOUtils.toString(context.getEntityStream(), StandardCharsets.UTF_8);
-			if (json != null && json.length() > 0) {
+		Map<String, Object> bodyParameters = new HashMap<>();
+		LOG.info(context.getMediaType());
+
+		Charset charset = StandardCharsets.UTF_8;
+		if (context.getMediaType() != null) {
+			charset = Charset.forName(context.getMediaType().getParameters().getOrDefault(MediaType.CHARSET_PARAMETER,
+					StandardCharsets.UTF_8.name()));
+		}
+		String body = IOUtils.toString(context.getEntityStream(), charset);
+		if (body != null && body.length() > 0) {
+			if (context.getMediaType() != null
+					&& MediaType.APPLICATION_JSON_TYPE.getType().equals(context.getMediaType().getType())
+					&& body.startsWith("{")) {
 				Jsonb jsonb = JsonbBuilder.create();
-				bodyParameters = jsonb.fromJson(json, Map.class);
+				Map map = jsonb.fromJson(body, Map.class);
+				bodyParameters.putAll(map);
+			}
+			else {
+				String[] lines = body.split("\n");
+				for (String line : lines) {
+					String[] keyValue = line.split("=");
+					bodyParameters.put(keyValue[0], keyValue[1]);
+				}
 			}
 		}
+
 		Object confIdStr = responseContext.getEntity();
-		
+
 		if (confIdStr != null && confIdStr.getClass().equals(Integer.class)) {
-		
+
 			Integer confId = (Integer) confIdStr;
-	
-			LOG.info(confId+ " found.");
-	
+
+			LOG.info(confId + " found.");
+
 			ServiceItem item = catalog.getItem(confId);
 			QueryResult result = null;
 			if (item != null) {
@@ -69,6 +90,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
 				responseContext.setStatus(412);
 			}
+			// TODO: return as context produces type
 			responseContext.setEntity(result, null, MediaType.APPLICATION_JSON_TYPE);
 		}
 	}

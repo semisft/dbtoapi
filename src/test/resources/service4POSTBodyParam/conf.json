@@ -1,0 +1,16 @@
+{
+"id": 4,
+"path": "/service4POSTBodyParam",
+"httpMethod":"POST",
+"sqlType":"SELECT",
+"parameters": [
+	{
+	"type":"BODY_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the table"
+	}
+],
+"sql":"SELECT * FROM FRUIT WHERE id=:id",
+"description":"All fruits"
+}

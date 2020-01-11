@@ -5,12 +5,12 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.semiz.db.entity.NamedParameterPreparedStatement;
@@ -22,21 +22,17 @@ public class DbConnection {
 	@Inject
 	DataSource ds;
 
-	public QueryResult select(String sql, MultivaluedMap<String, String> parameters) {
+	public QueryResult select(String sql, Map<String, Object> parameters) {
 		QueryResult result = new QueryResult();
 
-		Entry<String, List<String>> lastEntry = null;
+		Entry<String, Object> lastEntry = null;
 		try (final NamedParameterPreparedStatement st = NamedParameterPreparedStatement
 				.createNamedParameterPreparedStatement(ds.getConnection(), sql)) {
 
-			for (Entry<String, List<String>> entry : parameters.entrySet()) {
+			for (Entry<String, Object> entry : parameters.entrySet()) {
 				if (st.hasNamedParameter(entry.getKey())) {
 					lastEntry = entry;
-					Object parameterValue = entry.getValue();
-					if (entry.getValue().size() == 1) {
-						parameterValue = entry.getValue().get(0);
-					}
-					st.setObject(entry.getKey(), parameterValue);
+					st.setObject(entry.getKey(), entry.getValue());
 				}
 			}
 
@@ -59,7 +55,8 @@ public class DbConnection {
 			result.setColumns(columnNames);
 			result.setResultCode(Response.Status.OK.getStatusCode());
 		} catch (Exception e) {
-			throw new ParameterException(lastEntry !=null?lastEntry.getKey():"", lastEntry!=null?lastEntry.getValue():"", e.getMessage());
+			throw new ParameterException(lastEntry != null ? lastEntry.getKey() : "",
+					lastEntry != null ? lastEntry.getValue() : "", e.getMessage());
 		}
 
 		return result;

@@ -1,13 +1,13 @@
 package com.semiz.entity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.semiz.db.boundary.DbConnection;
+import com.semiz.db.entity.ParameterException;
 import com.semiz.db.entity.QueryResult;
 
 public class ServiceItem {
@@ -16,6 +16,8 @@ public class ServiceItem {
 	String path;
 
 	String httpMethod;
+	String consumes;
+	String produces;
 	List<ServiceItemParameter> parameters;
 	ServiceItemSqlType sqlType;
 	String sql;
@@ -72,16 +74,51 @@ public class ServiceItem {
 		this.httpMethod = httpMethod;
 	}
 
+	public String getConsumes() {
+		return consumes;
+	}
+
+	public void setConsumes(String consumes) {
+		this.consumes = consumes;
+	}
+
+	public String getProduces() {
+		return produces;
+	}
+
+	public void setProduces(String produces) {
+		this.produces = produces;
+	}
+
 	public QueryResult getSqlExecResult(DbConnection conn, MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, Map bodyParameters) {
-		MultivaluedMap<String, String> allParameters = new MultivaluedHashMap<>();
-		allParameters.putAll(pathParameters);
-		allParameters.putAll(queryParameters);
-		if (bodyParameters != null) {
-			allParameters.putAll(bodyParameters);
+			MultivaluedMap<String, String> queryParameters, Map<String, Object> bodyParameters) {
+		Map<String, Object> filteredParameters = new HashMap<>();
+		for(ServiceItemParameter parameter : this.getParameters()) {
+			Object parameterValue = getParameterValue(parameter, pathParameters,  queryParameters, bodyParameters);
+			filteredParameters.put(parameter.getName(), parameterValue);
 		}
 
-		return conn.select(this.sql, allParameters);
+		return conn.select(this.sql, filteredParameters);
+	}
+
+	private Object getParameterValue(ServiceItemParameter parameter, MultivaluedMap<String, String> pathParameters,
+			MultivaluedMap<String, String> queryParameters, Map<String, Object> bodyParameters) {
+		Object result = null;
+		Object parameterValue = null;
+		if (ParameterType.QUERY_PARAM.equals(parameter.getType())) {
+			parameterValue = queryParameters.get(parameter.getName());
+		}
+		else if (ParameterType.PATH_PARAM.equals(parameter.getType())) {
+			parameterValue = pathParameters.get(parameter.getName());
+		}
+		else if (ParameterType.BODY_PARAM.equals(parameter.getType())) {
+			parameterValue = bodyParameters.get(parameter.getName());
+		}
+		else {
+			throw new ParameterException(parameter.getName(), "", parameter.getType()+" parameter type not known");
+		}
+		result = parameter.convertToType(parameterValue);
+		return result;
 	}
 
 }
