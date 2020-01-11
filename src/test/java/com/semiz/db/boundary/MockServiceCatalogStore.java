@@ -17,8 +17,12 @@ public class MockServiceCatalogStore implements ServiceCatalogStore {
 	private static String[] CONFS = new String[] {
 			"/service1GETNoParams/conf.json",
 			"/service2GETPathParam/conf.json",
+			"/service6GET2PathParam/conf.json",
+			"/service7GETPathQueryParam/conf.json",
 			"/service3GETQueryParam/conf.json",
 			"/service4POSTBodyParam/conf.json",
+			"/service8POSTPathBodyParam/conf.json",
+			"/service9POSTQueryBodyParam/conf.json",
 			"/service5POSTFormParam/conf.json",
 	};
 	@Override

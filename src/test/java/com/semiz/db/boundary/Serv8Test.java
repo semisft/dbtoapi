@@ -12,20 +12,24 @@ import org.junit.jupiter.api.TestInstance;
 import com.semiz.test.BaseTest;
 
 import io.quarkus.test.TransactionalQuarkusTest;
+import io.restassured.http.ContentType;
 
 @TransactionalQuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class Serv3Test extends BaseTest {
+public class Serv8Test extends BaseTest {
 	
-	private static final String SERVICE_NAME = "/service3GETQueryParam";
+	private static final String SERVICE_NAME = "/service8POSTPathBodyParam";
 
+	private static String payload = "{" +
+	        "  \"name\": \"Sour-cherry\""+
+	        "}";
 	@Test
 	public void testHelloEndpoint() throws IOException {
 		given().
 		when().
-		header("Content-Type", "application/json").
-		queryParam("id", 2).
-		get("/api"+SERVICE_NAME).
+		contentType(ContentType.JSON).
+        body(payload).
+        post("/api"+SERVICE_NAME+"/{id}", 3).
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));

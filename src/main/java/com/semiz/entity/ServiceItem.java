@@ -97,8 +97,26 @@ public class ServiceItem {
 			Object parameterValue = getParameterValue(parameter, pathParameters,  queryParameters, bodyParameters);
 			filteredParameters.put(parameter.getName(), parameterValue);
 		}
+		
+		if (ServiceItemSqlType.SELECT.equals(this.getSqlType())) {
+			return conn.select(this.sql, filteredParameters);	
+		}
+		else if (ServiceItemSqlType.INSERT.equals(this.getSqlType())) {
+			return conn.insert(this.sql, filteredParameters);	
+		}
+		else if (ServiceItemSqlType.UPDATE.equals(this.getSqlType())) {
+			return conn.update(this.sql, filteredParameters);	
+		}
+		else if (ServiceItemSqlType.DELETE.equals(this.getSqlType())) {
+			return conn.delete(this.sql, filteredParameters);	
+		}
+		//TODO: exec stored proc
+		else {
+			throw new ParameterException(this.getPath(),
+					"", " not known sql type:" + this.getSqlType());
+		}
 
-		return conn.select(this.sql, filteredParameters);
+		
 	}
 
 	private Object getParameterValue(ServiceItemParameter parameter, MultivaluedMap<String, String> pathParameters,

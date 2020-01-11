@@ -63,8 +63,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				Jsonb jsonb = JsonbBuilder.create();
 				Map map = jsonb.fromJson(body, Map.class);
 				bodyParameters.putAll(map);
-			}
-			else {
+			} else {
 				String[] lines = body.split("\n");
 				for (String line : lines) {
 					String[] keyValue = line.split("=");
@@ -79,7 +78,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 
 			Integer confId = (Integer) confIdStr;
 
-			LOG.info(confId + " found.");
+			LOG.info("Service configuration:" + confId + " found.");
 
 			ServiceItem item = catalog.getItem(confId);
 			QueryResult result = null;

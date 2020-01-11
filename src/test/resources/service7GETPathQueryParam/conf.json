@@ -1,0 +1,22 @@
+{
+"id": 7,
+"path": "/service7GETPathQueryParam/{id}",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [
+	{
+	"type":"PATH_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The fruit id"
+	},
+	{
+	"type":"QUERY_PARAM",
+	"name":"quantity",
+	"dataType":"INTEGER",
+	"description":"The min value required"
+	}
+],
+"sql":"SELECT * FROM FRUIT_EXPORT WHERE fruit_id=:id AND QUANTITY>=:quantity ORDER BY ID",
+"description":"All fruits"
+}

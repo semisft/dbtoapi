@@ -10,6 +10,7 @@ public class QueryResult {
 	List resultList = new ArrayList();
 	int resultCode;
 	String errorMessage;
+	long recordCount;
 
 	public QueryResult() {
 
@@ -53,10 +54,19 @@ public class QueryResult {
 		this.errorMessage = errorMessage;
 	}
 
+	public long getRecordCount() {
+		return recordCount;
+	}
+
+	public void setRecordCount(long recordCount) {
+		this.recordCount = recordCount;
+	}
+
 	public static QueryResult createError(String path, String method, MediaType mediaType) {
 		QueryResult result = new QueryResult();
 		result.setResultCode(412);
-		result.setErrorMessage(String.format("No method found for path %s, method: %s, media type: %s", path, method, mediaType));
+		result.setErrorMessage(
+				String.format("No method found for path %s, method: %s, media type: %s", path, method, mediaType));
 		return result;
 	}
 

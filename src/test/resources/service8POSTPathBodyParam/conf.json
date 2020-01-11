@@ -1,0 +1,22 @@
+{
+"id": 8,
+"path": "/service8POSTPathBodyParam/{id}",
+"httpMethod":"POST",
+"sqlType":"UPDATE",
+"parameters": [
+	{
+	"type":"PATH_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the fruit"
+	},
+	{
+	"type":"BODY_PARAM",
+	"name":"name",
+	"dataType":"STRING",
+	"description":"The name of fruit"
+	}
+],
+"sql":"UPDATE FRUIT SET NAME=:name WHERE id=:id",
+"description":"Update a fruit"
+}

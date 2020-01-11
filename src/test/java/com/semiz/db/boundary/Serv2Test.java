@@ -22,7 +22,8 @@ public class Serv2Test extends BaseTest {
 	@Test
 	public void testHelloEndpoint() throws IOException {
 		given().
-		when().get("/api"+SERVICE_NAME+"/2").
+		when().
+		get("/api"+SERVICE_NAME+"/{id}", 2).
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));

@@ -22,7 +22,7 @@ public class DbConnection {
 	@Inject
 	DataSource ds;
 
-	public QueryResult select(String sql, Map<String, Object> parameters) {
+	public QueryResult execute(String sql, Map<String, Object> parameters, boolean isSelect) {
 		QueryResult result = new QueryResult();
 
 		Entry<String, Object> lastEntry = null;
@@ -36,30 +36,53 @@ public class DbConnection {
 				}
 			}
 
-			ResultSet resultList = st.executeQuery();
-			ResultSetMetaData rsmd = resultList.getMetaData();
+			if (isSelect) {
+				ResultSet resultList = st.executeQuery();
+				ResultSetMetaData rsmd = resultList.getMetaData();
 
-			List<String> columnNames = new ArrayList<>();
-			for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-				String name = rsmd.getColumnLabel(i);
-				columnNames.add(name);
-			}
-			while (resultList.next()) {
-				LinkedHashMap<String, Object> row = new LinkedHashMap<>();
-				for (String columnName : columnNames) {
-					row.put(columnName, resultList.getObject(columnName));
+				List<String> columnNames = new ArrayList<>();
+				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+					String name = rsmd.getColumnLabel(i);
+					columnNames.add(name);
 				}
-				result.getResultList().add(row);
+				while (resultList.next()) {
+					LinkedHashMap<String, Object> row = new LinkedHashMap<>();
+					for (String columnName : columnNames) {
+						row.put(columnName, resultList.getObject(columnName));
+					}
+					result.getResultList().add(row);
 
+				}
+				result.setColumns(columnNames);
+				result.setRecordCount(result.getResultList().size());
+				result.setResultCode(Response.Status.OK.getStatusCode());
+			} else {
+				int recordCount = st.executeUpdate();
+				result.setRecordCount(recordCount);
+				result.setResultCode(Response.Status.OK.getStatusCode());
 			}
-			result.setColumns(columnNames);
-			result.setResultCode(Response.Status.OK.getStatusCode());
 		} catch (Exception e) {
 			throw new ParameterException(lastEntry != null ? lastEntry.getKey() : "",
 					lastEntry != null ? lastEntry.getValue() : "", e.getMessage());
 		}
 
 		return result;
+	}
+
+	public QueryResult select(String sql, Map<String, Object> parameters) {	
+		return execute(sql, parameters, true);
+	}
+	
+	public QueryResult insert(String sql, Map<String, Object> parameters) {
+		return execute(sql, parameters, false);
+	}
+
+	public QueryResult update(String sql, Map<String, Object> parameters) {
+		return execute(sql, parameters, false);
+	}
+
+	public QueryResult delete(String sql, Map<String, Object> parameters) {
+		return execute(sql, parameters, false);
 	}
 
 }

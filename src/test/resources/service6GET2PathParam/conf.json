@@ -1,0 +1,22 @@
+{
+"id": 6,
+"path": "/service6GET2PathParam/{id}/{country}",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [
+	{
+	"type":"PATH_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the table"
+	},
+	{
+	"type":"PATH_PARAM",
+	"name":"country",
+	"dataType":"STRING",
+	"description":"The country name fruit exported"
+	}
+],
+"sql":"SELECT * FROM FRUIT_EXPORT WHERE FRUIT_ID=:id AND COUNTRY=:country ORDER BY ID",
+"description":"Selected fruit's exports to a country"
+}

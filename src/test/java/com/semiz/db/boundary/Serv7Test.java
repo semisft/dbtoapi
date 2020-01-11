@@ -15,17 +15,17 @@ import io.quarkus.test.TransactionalQuarkusTest;
 
 @TransactionalQuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class Serv3Test extends BaseTest {
+public class Serv7Test extends BaseTest {
 	
-	private static final String SERVICE_NAME = "/service3GETQueryParam";
+	private static final String SERVICE_NAME = "/service7GETPathQueryParam";
 
 	@Test
 	public void testHelloEndpoint() throws IOException {
 		given().
 		when().
 		header("Content-Type", "application/json").
-		queryParam("id", 2).
-		get("/api"+SERVICE_NAME).
+		queryParam("quantity", 555).
+		get("/api"+SERVICE_NAME+"/{id}", 1).
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));

@@ -1,0 +1,22 @@
+{
+"id": 9,
+"path": "/service9POSTQueryBodyParam",
+"httpMethod":"POST",
+"sqlType":"UPDATE",
+"parameters": [
+	{
+	"type":"QUERY_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The unique id of the fruit"
+	},
+	{
+	"type":"BODY_PARAM",
+	"name":"name",
+	"dataType":"STRING",
+	"description":"The name of fruit"
+	}
+],
+"sql":"UPDATE FRUIT SET NAME=:name WHERE id=:id",
+"description":"Update a fruit"
+}

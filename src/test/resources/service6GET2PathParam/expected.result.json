@@ -1,0 +1,1 @@
+{"columns":["ID","FRUIT_ID","COUNTRY","QUANTITY"],"recordCount":2,"resultCode":200,"resultList":[{"ID":1,"FRUIT_ID":1,"COUNTRY":"USA","QUANTITY":500},{"ID":2,"FRUIT_ID":1,"COUNTRY":"USA","QUANTITY":501}]}
