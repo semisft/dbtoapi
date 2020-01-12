@@ -20,7 +20,7 @@ public class Serv7Test extends BaseTest {
 	private static final String SERVICE_NAME = "/service7GETPathQueryParam";
 
 	@Test
-	public void testHelloEndpoint() throws IOException {
+	public void testService() throws IOException {
 		given().
 		when().
 		header("Content-Type", "application/json").
@@ -29,6 +29,17 @@ public class Serv7Test extends BaseTest {
 		then().
 		statusCode(200).and().
 		body(is(super.expectedString(SERVICE_NAME)));
+	}
+
+	@Test
+	public void testParameterQuantityNeededService() throws IOException {
+		given().
+		when().
+		header("Content-Type", "application/json").
+		get("/api"+SERVICE_NAME+"/{id}", 1).
+		then().
+		statusCode(412).and().
+		body(is(super.expectedString(SERVICE_NAME, "expected.result2.json")));
 	}
 
 	@BeforeAll

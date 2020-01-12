@@ -93,30 +93,25 @@ public class ServiceItem {
 	public QueryResult getSqlExecResult(DbConnection conn, MultivaluedMap<String, String> pathParameters,
 			MultivaluedMap<String, String> queryParameters, Map<String, Object> bodyParameters) {
 		Map<String, Object> filteredParameters = new HashMap<>();
-		for(ServiceItemParameter parameter : this.getParameters()) {
-			Object parameterValue = getParameterValue(parameter, pathParameters,  queryParameters, bodyParameters);
+		for (ServiceItemParameter parameter : this.getParameters()) {
+			Object parameterValue = getParameterValue(parameter, pathParameters, queryParameters, bodyParameters);
 			filteredParameters.put(parameter.getName(), parameterValue);
 		}
-		
+
 		if (ServiceItemSqlType.SELECT.equals(this.getSqlType())) {
-			return conn.select(this.sql, filteredParameters);	
+			return conn.select(this.sql, filteredParameters);
+		} else if (ServiceItemSqlType.INSERT.equals(this.getSqlType())) {
+			return conn.insert(this.sql, filteredParameters);
+		} else if (ServiceItemSqlType.UPDATE.equals(this.getSqlType())) {
+			return conn.update(this.sql, filteredParameters);
+		} else if (ServiceItemSqlType.DELETE.equals(this.getSqlType())) {
+			return conn.delete(this.sql, filteredParameters);
 		}
-		else if (ServiceItemSqlType.INSERT.equals(this.getSqlType())) {
-			return conn.insert(this.sql, filteredParameters);	
-		}
-		else if (ServiceItemSqlType.UPDATE.equals(this.getSqlType())) {
-			return conn.update(this.sql, filteredParameters);	
-		}
-		else if (ServiceItemSqlType.DELETE.equals(this.getSqlType())) {
-			return conn.delete(this.sql, filteredParameters);	
-		}
-		//TODO: exec stored proc
+		// TODO: exec stored proc
 		else {
-			throw new ParameterException(this.getPath(),
-					"", " not known sql type:" + this.getSqlType());
+			throw new ParameterException(this.getPath(), "", " not known sql type:" + this.getSqlType());
 		}
 
-		
 	}
 
 	private Object getParameterValue(ServiceItemParameter parameter, MultivaluedMap<String, String> pathParameters,
@@ -124,16 +119,28 @@ public class ServiceItem {
 		Object result = null;
 		Object parameterValue = null;
 		if (ParameterType.QUERY_PARAM.equals(parameter.getType())) {
-			parameterValue = queryParameters.get(parameter.getName());
-		}
-		else if (ParameterType.PATH_PARAM.equals(parameter.getType())) {
-			parameterValue = pathParameters.get(parameter.getName());
-		}
-		else if (ParameterType.BODY_PARAM.equals(parameter.getType())) {
-			parameterValue = bodyParameters.get(parameter.getName());
-		}
-		else {
-			throw new ParameterException(parameter.getName(), "", parameter.getType()+" parameter type not known");
+			if (queryParameters.containsKey(parameter.getName())) {
+				parameterValue = queryParameters.get(parameter.getName());
+			}
+			else {
+				throw new ParameterException(parameter.getName(), "", "not found in QUERY parameters");
+			}
+		} else if (ParameterType.PATH_PARAM.equals(parameter.getType())) {
+			if (pathParameters.containsKey(parameter.getName())) {
+				parameterValue = pathParameters.get(parameter.getName());
+			}
+			else {
+				throw new ParameterException(parameter.getName(), "", "not found in PATH parameters");
+			}
+		} else if (ParameterType.BODY_PARAM.equals(parameter.getType())) {
+			if (bodyParameters.containsKey(parameter.getName())) {
+				parameterValue = bodyParameters.get(parameter.getName());
+			}
+			else {
+				throw new ParameterException(parameter.getName(), "", "not found in BODY parameters");
+			}
+		} else {
+			throw new ParameterException(parameter.getName(), "", parameter.getType() + " parameter type not known");
 		}
 		result = parameter.convertToType(parameterValue);
 		return result;

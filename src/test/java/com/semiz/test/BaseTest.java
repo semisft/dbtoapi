@@ -54,11 +54,14 @@ public class BaseTest {
 	}
 
 	public String expectedString(String serviceName) {
+		return expectedString(serviceName, "expected.result.json");
+	}
+	
+	public String expectedString(String serviceName, String fileName) {
 		try {
-			return IOUtils.resourceToString(serviceName+"/expected.result.json", 
+			return IOUtils.resourceToString(serviceName+"/"+fileName, 
 					StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "NULL";
 		}
