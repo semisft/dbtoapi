@@ -21,7 +21,7 @@ public class Serv4Test extends BaseTest {
 	private static final String SERVICE_NAME = "/service4POSTBodyParam";
 
 	private static String payload = "{" +
-	        "  \"id\": 2"+
+	        "  \"id\": 2, \"name\":\"Sour-cherry\""+
 	        "}";
 	@Test
 	public void testHelloEndpoint() throws IOException {

@@ -24,8 +24,6 @@ import com.semiz.db.entity.QueryResult;
 import com.semiz.entity.ServiceCatalog;
 import com.semiz.entity.ServiceItem;
 
-import io.vertx.core.http.HttpServerRequest;
-
 @Provider
 public class QueryResultFilter implements ContainerResponseFilter {
 
@@ -37,14 +35,10 @@ public class QueryResultFilter implements ContainerResponseFilter {
 	@Context
 	UriInfo uriInfo;
 
-	@Context
-	HttpServerRequest request;
-
 	@Override
 	public void filter(ContainerRequestContext context, ContainerResponseContext responseContext) throws IOException {
 		final String method = context.getMethod();
 		final String path = uriInfo.getPath();
-		final String address = request.remoteAddress().toString();
 
 		Map<String, Object> bodyParameters = new HashMap<>();
 		LOG.info(context.getMediaType());

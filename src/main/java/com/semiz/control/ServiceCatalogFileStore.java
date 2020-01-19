@@ -1,18 +1,25 @@
-package com.semiz.entity;
+package com.semiz.control;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+
+import com.semiz.db.entity.SaveException;
+import com.semiz.entity.ServiceItem;
 
 @ApplicationScoped
 public class ServiceCatalogFileStore implements ServiceCatalogStore {
@@ -24,7 +31,7 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 
 	@Override
 	public List<ServiceItem> loadServices() {
-		List<ServiceItem> result = new ArrayList<>(); 
+		List<ServiceItem> result = new ArrayList<>();
 		File resourceFile = null;
 		try {
 			List<File> resourceFiles = getResourceFiles(this.servicesPath);
@@ -81,6 +88,42 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 		System.out.println(fileNames);
 		return fileNames;
 	}
-	
+
+	@Override
+	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
+		//TODO:check path duplicate
+		List<ServiceItem> services = loadServices();
+		Integer maxId = Math.max(1, 1 + services.stream().map(i -> i.getId()).max(Integer::compareTo).get());
+		serviceItem.setId(maxId);
+		saveToFile(serviceItem);
+		return serviceItem;
+	}
+
+	private void saveToFile(ServiceItem serviceItem) {
+		String fileText = serviceItemToJson(serviceItem);
+		try {
+			FileUtils.writeStringToFile(new File(this.servicesPath + serviceItem.getId() + ".json"), fileText,
+					StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new SaveException(serviceItem.getPath(), serviceItem.getId(), e.getMessage());
+		}
+	}
+
+	private String serviceItemToJson(ServiceItem serviceItem) {
+		Jsonb jsonb = JsonbBuilder.create();
+		String fileText = jsonb.toJson(serviceItem);
+		return fileText;
+	}
+
+	@Override
+	public ServiceItem updateServiceItem(ServiceItem serviceItem) {
+		List<ServiceItem> services = loadServices();
+		Optional<ServiceItem> currentService = services.stream().filter(i -> serviceItem.getId().equals(i.getId()))
+				.findFirst();
+		if (currentService.isPresent()) {
+			saveToFile(serviceItem);
+		}
+		return serviceItem;
+	}
 
 }

@@ -3,10 +3,10 @@ package com.semiz.entity;
 import java.text.MessageFormat;
 
 public class ServiceResponse {
-	
+
 	Integer statusCode;
 	String message;
-	
+
 	public ServiceResponse(Integer statusCode, String message) {
 		this.statusCode = statusCode;
 		this.message = message;
@@ -32,7 +32,5 @@ public class ServiceResponse {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
-	
 
 }

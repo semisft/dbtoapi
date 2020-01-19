@@ -11,6 +11,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.jboss.logging.Logger;
 
+import com.semiz.control.ServiceCatalogStore;
 import com.semiz.db.boundary.DbConnection;
 import com.semiz.db.entity.QueryResult;
 
@@ -23,7 +24,7 @@ public class ServiceCatalog {
 
 	@Inject
 	DbConnection conn;
-	
+
 	@Inject
 	ServiceCatalogStore catalogStore;
 
@@ -55,11 +56,9 @@ public class ServiceCatalog {
 			loadService(item);
 		}
 	}
-	
+
 	public void loadService(ServiceItem item) {
 		this.items.put(item.getId(), item);
 	}
-
-	
 
 }

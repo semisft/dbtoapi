@@ -5,12 +5,12 @@ import javax.ws.rs.core.Response;
 
 import com.semiz.entity.ServiceResponse;
 
-public class ParameterException extends WebApplicationException {
+public class NotFoundException extends WebApplicationException {
 
-	public ParameterException(String fieldName, Object fieldValue, String message) {
+	public NotFoundException(String objectName, Object id) {
 		super("",
 				Response.status(412).entity(new ServiceResponse(412,
-						"Error on setting parameter {0} with value: {1}, {2}", fieldName, fieldValue, message))
+						"{0} with id: {1} is not found", objectName, id))
 						.build());
 	}
 }

@@ -69,10 +69,10 @@ public class DbConnection {
 		return result;
 	}
 
-	public QueryResult select(String sql, Map<String, Object> parameters) {	
+	public QueryResult select(String sql, Map<String, Object> parameters) {
 		return execute(sql, parameters, true);
 	}
-	
+
 	public QueryResult insert(String sql, Map<String, Object> parameters) {
 		return execute(sql, parameters, false);
 	}

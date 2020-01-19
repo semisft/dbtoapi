@@ -5,9 +5,9 @@ public class DbConnectionMetaData {
 	String jdbcUrl;
 	String user;
 	String passwd;
-	
+
 	public DbConnectionMetaData() {
-		
+
 	}
 
 	public String getName() {
@@ -41,7 +41,5 @@ public class DbConnectionMetaData {
 	public void setPasswd(String passwd) {
 		this.passwd = passwd;
 	}
-	
-	
 
 }

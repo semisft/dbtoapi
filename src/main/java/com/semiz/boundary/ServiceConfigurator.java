@@ -24,7 +24,7 @@ public class ServiceConfigurator {
 
 	@Inject
 	ServiceCatalog serviceCatalog;
-	
+
 	public void initRegistry(Registry registry) {
 		int count = 0;
 		for (ServiceItem serviceItem : serviceCatalog.getItems().values()) {
@@ -66,10 +66,9 @@ public class ServiceConfigurator {
 	}
 
 	private MediaType toMediaType(String mediaTypeStr, MediaType defaultMediaType) {
-		if (mediaTypeStr == null || mediaTypeStr.trim().length()<1) {
+		if (mediaTypeStr == null || mediaTypeStr.trim().length() < 1) {
 			return defaultMediaType;
-		}
-		else {
+		} else {
 			String[] typeSubType = mediaTypeStr.split("/");
 			return new MediaType(typeSubType[0], typeSubType[1]);
 		}

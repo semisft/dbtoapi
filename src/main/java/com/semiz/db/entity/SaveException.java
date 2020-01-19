@@ -5,12 +5,12 @@ import javax.ws.rs.core.Response;
 
 import com.semiz.entity.ServiceResponse;
 
-public class ParameterException extends WebApplicationException {
+public class SaveException extends WebApplicationException {
 
-	public ParameterException(String fieldName, Object fieldValue, String message) {
+	public SaveException(String fileName, Object id, String message) {
 		super("",
 				Response.status(412).entity(new ServiceResponse(412,
-						"Error on setting parameter {0} with value: {1}, {2}", fieldName, fieldValue, message))
+						"Error on saving {0} with id: {1}, {2}", fileName, id, message))
 						.build());
 	}
 }

@@ -15,22 +15,20 @@ import com.semiz.boundary.ServiceConfigurator;
 
 @ApplicationPath("/api")
 public class RestApplication extends Application {
-	
+
 	private static final Logger LOG = Logger.getLogger(RestApplication.class);
 
 	@Inject
 	ServiceConfigurator serviceConfigurator;
-	
+
 	@Context
 	Registry registry;
 
-	
 	@Override
 	public Set<Object> getSingletons() {
 		Set<Object> singletons = new HashSet<>();
 		serviceConfigurator.initRegistry(registry);
 		return singletons;
 	}
-	
-	
+
 }

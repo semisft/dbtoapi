@@ -10,9 +10,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 public class NamedParameterPreparedStatement extends DelegatingPreparedStatement {
@@ -166,9 +164,9 @@ public class NamedParameterPreparedStatement extends DelegatingPreparedStatement
 		super(delegate);
 		this.orderedParameters = new LinkedHashMap<>();
 		for (int i = 0; i < orderedParameters.size(); i++) {
-			this.orderedParameters.computeIfAbsent(orderedParameters.get(i), k -> new ArrayList<Integer>()).add(i+1);
+			this.orderedParameters.computeIfAbsent(orderedParameters.get(i), k -> new ArrayList<Integer>()).add(i + 1);
 		}
-		
+
 	}
 
 	public boolean hasNamedParameters() {

@@ -1,10 +1,5 @@
 package com.semiz.entity;
 
-
-
-
-import java.util.HashMap;
-
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
@@ -17,9 +12,9 @@ import org.jboss.resteasy.spi.metadata.SetterParameter;
 
 @Path("/")
 public class ConfiguredResourceClass extends DefaultResourceClass {
-	
+
 	Integer id;
-	
+
 	public Integer getId() {
 		return id;
 	}
@@ -31,7 +26,7 @@ public class ConfiguredResourceClass extends DefaultResourceClass {
 	public ConfiguredResourceClass() {
 		this(ConfiguredResourceClass.class, "/");
 	}
-	
+
 	public ConfiguredResourceClass(Class<?> clazz, String path) {
 		super(clazz, path);
 
@@ -64,7 +59,7 @@ public class ConfiguredResourceClass extends DefaultResourceClass {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
 	public Response actualMethod() {
 		return Response.ok(this.id).build();
 	}

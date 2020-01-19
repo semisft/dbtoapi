@@ -16,80 +16,53 @@ public class ConfiguredResourceMethod extends DefaultResourceMethod {
 	public ConfiguredResourceMethod(ResourceClass declaredClass, Method method, Method annotatedMethod) {
 		super(declaredClass, method, annotatedMethod);
 	}
-	
-	
-	   public void setResourceClass(ResourceClass resourceClass)
-	   {
-	      this.resourceClass = resourceClass;
-	   }
 
-	   
-	   public void setReturnType(Class<?> returnType)
-	   {
-	      this.returnType = returnType;
-	   }
+	public void setResourceClass(ResourceClass resourceClass) {
+		this.resourceClass = resourceClass;
+	}
 
-	   
-	   public void setGenericReturnType(Type genericReturnType)
-	   {
-	      this.genericReturnType = genericReturnType;
-	   }
+	public void setReturnType(Class<?> returnType) {
+		this.returnType = returnType;
+	}
 
-	   
-	   public void setMethod(Method method)
-	   {
-	      this.method = method;
-	   }
+	public void setGenericReturnType(Type genericReturnType) {
+		this.genericReturnType = genericReturnType;
+	}
 
-	   
-	   public void setAnnotatedMethod(Method annotatedMethod)
-	   {
-	      this.annotatedMethod = annotatedMethod;
-	   }
+	public void setMethod(Method method) {
+		this.method = method;
+	}
 
-	   
-	   public void setParams(MethodParameter... params)
-	   {
-	      this.params = params;
-	   }
+	public void setAnnotatedMethod(Method annotatedMethod) {
+		this.annotatedMethod = annotatedMethod;
+	}
 
-	   
-	   public void setFullpath(String fullpath)
-	   {
-	      this.fullpath = fullpath;
-	   }
+	public void setParams(MethodParameter... params) {
+		this.params = params;
+	}
 
-	   
-	   public void setPath(String path)
-	   {
-	      this.path = path;
-	   }
+	public void setFullpath(String fullpath) {
+		this.fullpath = fullpath;
+	}
 
-	   
-	   
-	   public void setHttpMethods(String... httpMethods)
-	   {
-		  Set<String> methods = new HashSet<>();
-		  for(String httpMethod : httpMethods) {
-			  methods.add(httpMethod);  
-		  }
-	      this.httpMethods = methods;
-	   }
+	public void setPath(String path) {
+		this.path = path;
+	}
 
-	   
-	   public void setProduces(MediaType... produces)
-	   {
-	      this.produces = produces;
-	   }
+	public void setHttpMethods(String... httpMethods) {
+		Set<String> methods = new HashSet<>();
+		for (String httpMethod : httpMethods) {
+			methods.add(httpMethod);
+		}
+		this.httpMethods = methods;
+	}
 
-	   
-	   public void setConsumes(MediaType... consumes)
-	   {
-	      this.consumes = consumes;
-	   }
+	public void setProduces(MediaType... produces) {
+		this.produces = produces;
+	}
 
-
-	
-	
+	public void setConsumes(MediaType... consumes) {
+		this.consumes = consumes;
+	}
 
 }

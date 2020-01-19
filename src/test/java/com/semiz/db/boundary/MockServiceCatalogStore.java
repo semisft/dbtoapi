@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.semiz.entity.ServiceCatalogStore;
+import com.semiz.control.ServiceCatalogStore;
 import com.semiz.entity.ServiceItem;
 
 import io.quarkus.test.Mock;
@@ -35,5 +35,15 @@ public class MockServiceCatalogStore implements ServiceCatalogStore {
 			result.add(item);
 		}
 		return result;
+	}
+	@Override
+	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public ServiceItem updateServiceItem(ServiceItem serviceItem) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

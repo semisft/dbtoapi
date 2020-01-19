@@ -26,6 +26,11 @@ public class ServiceItem {
 
 	}
 
+	public ServiceItem(Integer id) {
+		this();
+		this.id = id;
+	}
+
 	public Integer getId() {
 		return id;
 	}
@@ -121,22 +126,19 @@ public class ServiceItem {
 		if (ParameterType.QUERY_PARAM.equals(parameter.getType())) {
 			if (queryParameters.containsKey(parameter.getName())) {
 				parameterValue = queryParameters.get(parameter.getName());
-			}
-			else {
+			} else {
 				throw new ParameterException(parameter.getName(), "", "not found in QUERY parameters");
 			}
 		} else if (ParameterType.PATH_PARAM.equals(parameter.getType())) {
 			if (pathParameters.containsKey(parameter.getName())) {
 				parameterValue = pathParameters.get(parameter.getName());
-			}
-			else {
+			} else {
 				throw new ParameterException(parameter.getName(), "", "not found in PATH parameters");
 			}
 		} else if (ParameterType.BODY_PARAM.equals(parameter.getType())) {
 			if (bodyParameters.containsKey(parameter.getName())) {
 				parameterValue = bodyParameters.get(parameter.getName());
-			}
-			else {
+			} else {
 				throw new ParameterException(parameter.getName(), "", "not found in BODY parameters");
 			}
 		} else {
@@ -145,5 +147,32 @@ public class ServiceItem {
 		result = parameter.convertToType(parameterValue);
 		return result;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ServiceItem other = (ServiceItem) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+	
+	
 
 }

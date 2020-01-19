@@ -15,14 +15,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.vertx.core.http.HttpServerRequest;
-
 @Path("/")
 @ApplicationScoped
-public class Service {
-
-	@Context
-	HttpServerRequest request;
+public class CatchAllDefaultService {
 
 	@GET
 	@POST
@@ -33,8 +28,8 @@ public class Service {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response catchAllGet(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-		return Response.ok("No service configured for "+request.method()+" "+uriInfo.getPath()).build();
+		//TODO: add HTTP method @Context HttpServletRequest request
+		return Response.ok("No service configured for " + " " + uriInfo.getPath()).build();
 	}
-
 
 }
