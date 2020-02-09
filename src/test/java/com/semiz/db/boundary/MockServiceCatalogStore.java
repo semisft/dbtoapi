@@ -31,7 +31,7 @@ public class MockServiceCatalogStore implements ServiceCatalogStore {
 	public List<ServiceItem> loadServices() {
 		List<ServiceItem> result = new ArrayList<>();
 		for(String conf : CONFS) {
-			ServiceItem item = toServiceItem(getClass().getResourceAsStream(conf));
+			ServiceItem item = ServiceItem.toServiceItem(getClass().getResourceAsStream(conf));
 			result.add(item);
 		}
 		return result;

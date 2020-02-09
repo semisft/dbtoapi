@@ -21,9 +21,6 @@ import org.jboss.logging.Logger;
 
 import com.semiz.entity.ServiceItem;
 
-import io.quarkus.qute.Template;
-import io.quarkus.qute.TemplateInstance;
-
 @Path("/config")
 @ApplicationScoped
 public class ConfigService {
@@ -35,17 +32,6 @@ public class ConfigService {
 
 	@Inject
 	ConfigRepository db;
-
-	@Inject
-	Template hello;
-	
-	@GET
-	@Path("/hello1")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
-	public TemplateInstance getHello(@QueryParam("q") String queryStr) {
-		return hello.data("name", queryStr);
-	}
 
 	@GET
 	@Path("/serviceItem")

@@ -2,16 +2,17 @@ package com.semiz.control;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -19,6 +20,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import com.semiz.db.entity.SaveException;
+import com.semiz.entity.DbConfig;
 import com.semiz.entity.ServiceItem;
 
 @ApplicationScoped
@@ -26,22 +28,46 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 
 	private static final Logger LOG = Logger.getLogger(ServiceCatalogFileStore.class);
 
+	private static final CharSequence DBCONFIG = "dbconfig";
+
 	@ConfigProperty(name = "services.path")
 	String servicesPath;
 
 	@Override
 	public List<ServiceItem> loadServices() {
 		List<ServiceItem> result = new ArrayList<>();
-		File resourceFile = null;
+		Map<Integer, DbConfig> dbConfigs = new HashMap<>();
 		try {
 			List<File> resourceFiles = getResourceFiles(this.servicesPath);
-			for (Iterator iterator = resourceFiles.iterator(); iterator.hasNext();) {
-				resourceFile = (File) iterator.next();
-				ServiceItem item = toServiceItem(new FileInputStream(resourceFile));
-				result.add(item);
+			resourceFiles.stream().filter(f -> f.getName().contains(DBCONFIG)).
+			forEach(f ->
+			{
+				try {
+					DbConfig dbConfig = DbConfig.toDbConfig(new FileInputStream(f));
+					dbConfigs.put(dbConfig.getId(), dbConfig);
+				} catch (FileNotFoundException e) {
+					LOG.errorf("Error on loading service file: %s", f);
+				}
 			}
-		} catch (IOException e) {
-			LOG.errorf("Error on loading service file: %s", resourceFile);
+			);
+			
+			resourceFiles.stream().filter(f -> ! f.getName().contains(DBCONFIG)).
+			forEach(f ->
+			{
+				ServiceItem item;
+				try {
+					item = ServiceItem.toServiceItem(new FileInputStream(f));
+					item.setDbConfig(dbConfigs.get(item.getDbConfigId()));
+					result.add(item);
+				} catch (FileNotFoundException e) {
+					LOG.errorf("Error on loading service file: %s", f);
+				}
+			}
+			);
+			
+			
+		} catch (Exception e) {
+			LOG.errorf("Error on loading service from folder: %s, [%s]", this.servicesPath, e.getMessage());
 		}
 		return result;
 	}
@@ -91,7 +117,7 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 
 	@Override
 	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
-		//TODO:check path duplicate
+		//TODO:check path duplicates
 		List<ServiceItem> services = loadServices();
 		Integer maxId = Math.max(1, 1 + services.stream().map(i -> i.getId()).max(Integer::compareTo).get());
 		serviceItem.setId(maxId);
@@ -100,7 +126,7 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 	}
 
 	private void saveToFile(ServiceItem serviceItem) {
-		String fileText = serviceItemToJson(serviceItem);
+		String fileText = serviceItem.serviceItemToJson();
 		try {
 			FileUtils.writeStringToFile(new File(this.servicesPath + serviceItem.getId() + ".json"), fileText,
 					StandardCharsets.UTF_8);
@@ -109,11 +135,6 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 		}
 	}
 
-	private String serviceItemToJson(ServiceItem serviceItem) {
-		Jsonb jsonb = JsonbBuilder.create();
-		String fileText = jsonb.toJson(serviceItem);
-		return fileText;
-	}
 
 	@Override
 	public ServiceItem updateServiceItem(ServiceItem serviceItem) {

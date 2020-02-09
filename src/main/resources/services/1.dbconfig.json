@@ -1,0 +1,9 @@
+{
+	"id": 1,
+	"url": "jdbc:postgresql://localhost:5432/odoo4db",
+	"driver": "org.postgresql.Driver",
+	"username": "odoo",
+	"password": "odin13",
+	"minSize": 3,
+	"maxSize": 13
+}

@@ -41,7 +41,8 @@ public class ServiceCatalog {
 	}
 
 	public ServiceItem getItem(Integer id) {
-		return this.items.get(id);
+		ServiceItem result = this.items.get(id);
+		return result;
 	}
 
 	public QueryResult getSqlExecResult(ServiceItem item, MultivaluedMap<String, String> pathParameters,
@@ -58,6 +59,7 @@ public class ServiceCatalog {
 	}
 
 	public void loadService(ServiceItem item) {
+		LOG.info(item.getHttpMethod() + " "+ item.getPath() + " service is loaded.");
 		this.items.put(item.getId(), item);
 	}
 

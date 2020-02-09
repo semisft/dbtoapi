@@ -1,7 +1,8 @@
 {
 "id": 1,
-"path": "serv1",
-"method":"GET",
+"dbConfigId": 1,
+"path": "/serv1",
+"httpMethod":"GET",
 "sqlType":"SELECT",
 "parameters": [],
 "sql":"SELECT * FROM pg_tables",

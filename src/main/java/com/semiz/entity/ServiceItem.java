@@ -1,9 +1,13 @@
 package com.semiz.entity;
 
+import java.beans.Transient;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.semiz.db.boundary.DbConnection;
@@ -13,14 +17,17 @@ import com.semiz.db.entity.QueryResult;
 public class ServiceItem {
 
 	Integer id;
+	
 	String path;
-
 	String httpMethod;
 	String consumes;
 	String produces;
 	List<ServiceItemParameter> parameters;
 	ServiceItemSqlType sqlType;
 	String sql;
+	Integer dbConfigId;
+	
+	DbConfig dbConfig;
 
 	public ServiceItem() {
 
@@ -37,6 +44,23 @@ public class ServiceItem {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public Integer getDbConfigId() {
+		return dbConfigId;
+	}
+
+	public void setDbConfigId(Integer dbConfigId) {
+		this.dbConfigId = dbConfigId;
+	}
+	
+	@Transient
+	public DbConfig getDbConfig() {
+		return dbConfig;
+	}
+
+	public void setDbConfig(DbConfig dbConfig) {
+		this.dbConfig = dbConfig;
 	}
 
 	public String getPath() {
@@ -102,15 +126,16 @@ public class ServiceItem {
 			Object parameterValue = getParameterValue(parameter, pathParameters, queryParameters, bodyParameters);
 			filteredParameters.put(parameter.getName(), parameterValue);
 		}
+		
 
 		if (ServiceItemSqlType.SELECT.equals(this.getSqlType())) {
-			return conn.select(this.sql, filteredParameters);
+			return conn.select(this.getDbConfig(), this.sql, filteredParameters);
 		} else if (ServiceItemSqlType.INSERT.equals(this.getSqlType())) {
-			return conn.insert(this.sql, filteredParameters);
+			return conn.insert(this.getDbConfig(), this.sql, filteredParameters);
 		} else if (ServiceItemSqlType.UPDATE.equals(this.getSqlType())) {
-			return conn.update(this.sql, filteredParameters);
+			return conn.update(this.getDbConfig(), this.sql, filteredParameters);
 		} else if (ServiceItemSqlType.DELETE.equals(this.getSqlType())) {
-			return conn.delete(this.sql, filteredParameters);
+			return conn.delete(this.getDbConfig(), this.sql, filteredParameters);
 		}
 		// TODO: exec stored proc
 		else {
@@ -173,6 +198,17 @@ public class ServiceItem {
 		return true;
 	}
 	
+	public static ServiceItem toServiceItem(InputStream is) {
+		Jsonb jsonb = JsonbBuilder.create();
+		ServiceItem result = jsonb.fromJson(is, ServiceItem.class);
+		return result;
+	}
+	
+	public String serviceItemToJson() {
+		Jsonb jsonb = JsonbBuilder.create();
+		String fileText = jsonb.toJson(this);
+		return fileText;
+	}
 	
 
 }

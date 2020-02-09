@@ -1,7 +1,8 @@
 {
-"id": 1,
-"path": "serv2",
-"method":"GET",
+"id": 2,
+"dbConfigId": 1,
+"path": "/serv2",
+"httpMethod":"GET",
 "sqlType":"SELECT",
 "parameters": [{
 	"type":"PATH_PARAM",
