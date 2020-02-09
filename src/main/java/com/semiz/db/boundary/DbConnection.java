@@ -14,6 +14,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 
 import com.semiz.db.entity.NamedParameterPreparedStatement;
@@ -68,6 +69,7 @@ public class DbConnection {
 		return ds;
 	}
 
+	@Transactional
 	public QueryResult execute(DbConfig dbConfig, String sql, Map<String, Object> parameters, boolean isSelect) {
 		QueryResult result = new QueryResult();
 

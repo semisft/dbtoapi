@@ -1,0 +1,10 @@
+{
+"id": 3,
+"dbConfigId": 2,
+"path": "/serv3",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [],
+"sql":"SELECT NAME,CREATOR,TYPE AS \"tip\" FROM SYSIBM.SYSTABLES",
+"description":"All table names in the database"
+}

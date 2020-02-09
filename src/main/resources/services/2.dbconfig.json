@@ -1,0 +1,9 @@
+{
+	"id": 2,
+	"url": "jdbc:db2://localhost:50000/testdb:fullyMaterializeLobData=true;fullyMaterializeInputStreams=true;progressiveStreaming=2;progresssiveLocators=2;",
+	"driver": "com.ibm.db2.jcc.DB2Driver",
+	"username": "db2inst1",
+	"password": "mypwrd",
+	"minSize": 1,
+	"maxSize": 10
+}
