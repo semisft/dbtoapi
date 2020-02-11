@@ -3,13 +3,17 @@ package com.semiz.db.boundary;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,6 +32,13 @@ import io.quarkus.agroal.runtime.DataSourceRuntimeConfig;
 
 @ApplicationScoped
 public class DbConnection {
+	
+	public static final Integer USE_DEFAULT_DS = -999;
+
+	private static final String PARAM_PREFIX = ":";
+	
+	@Inject
+	DataSource defaultDs;
 
 	@Inject
 	AbstractDataSourceProducer dbProducer;
@@ -35,9 +46,12 @@ public class DbConnection {
 	Map<String, DataSource> dataSources = new HashMap<>();
 
 	private DataSource getDatasource(DbConfig dbConfig) {
-
-		String dataSourceName = "java:/ds" + dbConfig.getId();
 		DataSource ds = null;
+		if (USE_DEFAULT_DS.equals(dbConfig.getId())) {
+			ds = defaultDs;
+		}
+		else {
+		String dataSourceName = "java:/ds" + dbConfig.getId();
 		if (dataSources.containsKey(dataSourceName)) {
 			ds = dataSources.get(dataSourceName);
 		} else {
@@ -66,24 +80,60 @@ public class DbConnection {
 					Optional.of(dataSourceRuntimeConfig));
 			dataSources.put(dataSourceName, ds);
 		}
+		}
 		return ds;
 	}
 
 	@Transactional
-	public QueryResult execute(DbConfig dbConfig, String sql, Map<String, Object> parameters, boolean isSelect) {
+	public QueryResult execute(DbConfig dbConfig, String sql, Map<String, Object> parameters, boolean isSelect, List<Map<String, Object>> bodyParameters) {
 		QueryResult result = new QueryResult();
+
+		boolean multiUpdateBatchStmt = ! isSelect && bodyParameters.size()>1;
+
+		Map<String, Object> parametersProcessed = new LinkedHashMap<>();
+		//change SQL for multi-valued parameters
+		for (Entry<String, Object> entry : parameters.entrySet()) {
+			if (ArrayList.class.equals(entry.getValue().getClass())) {
+				List<String> newParameterNames = new ArrayList<>();
+				List list = (ArrayList) entry.getValue();
+				for (int i = 0; i < list.size(); i++) {
+					Object val = list.get(i);
+					String newParameterKey = entry.getKey()+i;
+					parametersProcessed.put(newParameterKey, val);
+					newParameterNames.add(PARAM_PREFIX+newParameterKey);
+				}
+				String valuesStr = newParameterNames.stream().collect(Collectors.joining(","));
+				sql = sql.replace(PARAM_PREFIX+entry.getKey(), valuesStr);
+			}
+			else {
+				parametersProcessed.put(entry.getKey(), entry.getValue());
+			}
+		}
 
 		Entry<String, Object> lastEntry = null;
 		try (final Connection conn = getDatasource(dbConfig).getConnection();
 				final NamedParameterPreparedStatement st = NamedParameterPreparedStatement
 						.createNamedParameterPreparedStatement(conn, sql)) {
 
-			for (Entry<String, Object> entry : parameters.entrySet()) {
+			for (Entry<String, Object> entry : parametersProcessed.entrySet()) {
 				if (st.hasNamedParameter(entry.getKey())) {
 					lastEntry = entry;
 					st.setObject(entry.getKey(), entry.getValue());
 				}
 			}
+			for (Iterator iterator = bodyParameters.iterator(); iterator.hasNext();) {
+				Map<String, Object> row = (Map<String, Object>) iterator.next();
+				for (Entry<String, Object> entry : row.entrySet()) {
+					if (st.hasNamedParameter(entry.getKey())) {
+						lastEntry = entry;
+						st.setObject(entry.getKey(), entry.getValue());
+					}
+				}
+				if (multiUpdateBatchStmt) {
+					st.addBatch();
+				}
+			}
+			
 
 			if (isSelect) {
 				ResultSet resultList = st.executeQuery();
@@ -105,8 +155,18 @@ public class DbConnection {
 				result.setColumns(columnNames);
 				result.setRecordCount(result.getResultList().size());
 				result.setResultCode(Response.Status.OK.getStatusCode());
-			} else {
-				int recordCount = st.executeUpdate();
+			} 
+			else {
+				int recordCount = 0;
+				if (multiUpdateBatchStmt) {
+					int[] recordCountInts = st.executeBatch();
+					for (int count : recordCountInts) {
+						recordCount += count;
+					}
+				}
+				else {
+					recordCount = st.executeUpdate();
+				}
 				result.setRecordCount(recordCount);
 				result.setResultCode(Response.Status.OK.getStatusCode());
 			}
@@ -118,20 +178,20 @@ public class DbConnection {
 		return result;
 	}
 
-	public QueryResult select(DbConfig dbConfig, String sql, Map<String, Object> parameters) {
-		return execute(dbConfig, sql, parameters, true);
+	public QueryResult select(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+		return execute(dbConfig, sql, parameters, true, bodyParameters);
 	}
 
-	public QueryResult insert(DbConfig dbConfig, String sql, Map<String, Object> parameters) {
-		return execute(dbConfig, sql, parameters, false);
+	public QueryResult insert(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+		return execute(dbConfig, sql, parameters, false, bodyParameters);
 	}
 
-	public QueryResult update(DbConfig dbConfig, String sql, Map<String, Object> parameters) {
-		return execute(dbConfig, sql, parameters, false);
+	public QueryResult update(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+		return execute(dbConfig, sql, parameters, false, bodyParameters);
 	}
 
-	public QueryResult delete(DbConfig dbConfig, String sql, Map<String, Object> parameters) {
-		return execute(dbConfig, sql, parameters, false);
+	public QueryResult delete(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+		return execute(dbConfig, sql, parameters, false, bodyParameters);
 	}
 
 }

@@ -3,6 +3,7 @@ package com.semiz.entity;
 import java.beans.Transient;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -120,22 +121,41 @@ public class ServiceItem {
 	}
 
 	public QueryResult getSqlExecResult(DbConnection conn, MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, Map<String, Object> bodyParameters) {
+			MultivaluedMap<String, String> queryParameters, List<Map<String, Object>> bodyParameters) {
 		Map<String, Object> filteredParameters = new HashMap<>();
 		for (ServiceItemParameter parameter : this.getParameters()) {
-			Object parameterValue = getParameterValue(parameter, pathParameters, queryParameters, bodyParameters);
-			filteredParameters.put(parameter.getName(), parameterValue);
+			Object parameterValue = null;
+			if (ParameterType.QUERY_PARAM.equals(parameter.getType())) {
+				parameterValue = checkParameter(parameter, queryParameters, parameterValue, "QUERY");
+				parameterValue = parameter.convertToType(parameterValue);
+				filteredParameters.put(parameter.getName(), parameterValue);
+			} 
+			else if (ParameterType.PATH_PARAM.equals(parameter.getType())) {
+				parameterValue = checkParameter(parameter, pathParameters, parameterValue, "PATH");
+				parameterValue = parameter.convertToType(parameterValue);
+				filteredParameters.put(parameter.getName(), parameterValue);
+			} 
+			else if (ParameterType.BODY_PARAM.equals(parameter.getType())) {
+				for (Iterator iterator = bodyParameters.iterator(); iterator.hasNext();) {
+					Map<String, Object> bodyItem = (Map<String, Object>) iterator.next();
+					parameterValue = checkParameter(parameter, bodyItem, parameterValue, "BODY");
+					bodyItem.put(parameter.getName(), parameterValue);
+				}
+			} 
+			else {
+				throw new ParameterException(parameter.getName(), "", parameter.getType() + " parameter type not known");
+			}
 		}
 		
 
 		if (ServiceItemSqlType.SELECT.equals(this.getSqlType())) {
-			return conn.select(this.getDbConfig(), this.sql, filteredParameters);
+			return conn.select(this.getDbConfig(), this.sql, filteredParameters, bodyParameters);
 		} else if (ServiceItemSqlType.INSERT.equals(this.getSqlType())) {
-			return conn.insert(this.getDbConfig(), this.sql, filteredParameters);
+			return conn.insert(this.getDbConfig(), this.sql, filteredParameters, bodyParameters);
 		} else if (ServiceItemSqlType.UPDATE.equals(this.getSqlType())) {
-			return conn.update(this.getDbConfig(), this.sql, filteredParameters);
+			return conn.update(this.getDbConfig(), this.sql, filteredParameters, bodyParameters);
 		} else if (ServiceItemSqlType.DELETE.equals(this.getSqlType())) {
-			return conn.delete(this.getDbConfig(), this.sql, filteredParameters);
+			return conn.delete(this.getDbConfig(), this.sql, filteredParameters, bodyParameters);
 		}
 		// TODO: exec stored proc
 		else {
@@ -144,33 +164,14 @@ public class ServiceItem {
 
 	}
 
-	private Object getParameterValue(ServiceItemParameter parameter, MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, Map<String, Object> bodyParameters) {
-		Object result = null;
-		Object parameterValue = null;
-		if (ParameterType.QUERY_PARAM.equals(parameter.getType())) {
-			if (queryParameters.containsKey(parameter.getName())) {
-				parameterValue = queryParameters.get(parameter.getName());
-			} else {
-				throw new ParameterException(parameter.getName(), "", "not found in QUERY parameters");
-			}
-		} else if (ParameterType.PATH_PARAM.equals(parameter.getType())) {
-			if (pathParameters.containsKey(parameter.getName())) {
-				parameterValue = pathParameters.get(parameter.getName());
-			} else {
-				throw new ParameterException(parameter.getName(), "", "not found in PATH parameters");
-			}
-		} else if (ParameterType.BODY_PARAM.equals(parameter.getType())) {
-			if (bodyParameters.containsKey(parameter.getName())) {
-				parameterValue = bodyParameters.get(parameter.getName());
-			} else {
-				throw new ParameterException(parameter.getName(), "", "not found in BODY parameters");
-			}
+	private Object checkParameter(ServiceItemParameter parameter, Map queryParameters,
+			Object parameterValue, String messageKey) {
+		if (queryParameters.containsKey(parameter.getName())) {
+			parameterValue = queryParameters.get(parameter.getName());
 		} else {
-			throw new ParameterException(parameter.getName(), "", parameter.getType() + " parameter type not known");
+			throw new ParameterException(parameter.getName(), "", "not found in "+messageKey+" parameters");
 		}
-		result = parameter.convertToType(parameterValue);
-		return result;
+		return parameterValue;
 	}
 
 	@Override

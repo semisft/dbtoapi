@@ -1,7 +1,9 @@
 package com.semiz.entity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import com.semiz.db.entity.ParameterException;
 
@@ -47,29 +49,44 @@ public class ServiceItemParameter {
 		this.dataType = dataType;
 	}
 
-	public Object convertToType(Object valueList) {
+	public Object convertToType(Object valueObjectOrList) {
 		Object result = null;
 		try {
-			if (valueList == null) {
-				result = valueList;
+			if (valueObjectOrList == null) {
+				result = valueObjectOrList;
 			}
-			// TODO: add list type
 			else {
-				Object value = valueList;
-				if ((valueList instanceof List) && ((List) valueList).size() == 1) {
-					value = ((List) valueList).get(0);
+				if ((valueObjectOrList instanceof List)) {
+					List valueList = (List) valueObjectOrList;
+					result = new ArrayList();
+					for (ListIterator iterator = valueList.listIterator(); iterator.hasNext();) {
+						Object val = (Object) iterator.next();
+						val = convertStringToDataType(val);
+						((List)result).add(val);
+					}
+					if (valueList.size() == 1) {
+						result = ((List)result).get(0);
+					}
 				}
-				if (DataType.STRING.equals(this.getDataType())) {
-					result = value;
-				} else if (DataType.INTEGER.equals(this.getDataType())) {
-					// TODO: long or short
-					result = new Integer(value.toString());
-				} else if (DataType.DECIMAL.equals(this.getDataType())) {
-					result = new BigDecimal(value.toString());
+				else {
+					result = convertStringToDataType(valueObjectOrList);
 				}
 			}
 		} catch (Exception e) {
-			throw new ParameterException(this.getName(), valueList, "trying to convert to " + this.getDataType());
+			throw new ParameterException(this.getName(), valueObjectOrList, "trying to convert to " + this.getDataType());
+		}
+		return result;
+	}
+
+	private Object convertStringToDataType(Object value) {
+		Object result = null;
+		if (DataType.STRING.equals(this.getDataType())) {
+			result = value;
+		} else if (DataType.INTEGER.equals(this.getDataType())) {
+			// TODO: long or short
+			result = new Integer(value.toString());
+		} else if (DataType.DECIMAL.equals(this.getDataType())) {
+			result = new BigDecimal(value.toString());
 		}
 		return result;
 	}

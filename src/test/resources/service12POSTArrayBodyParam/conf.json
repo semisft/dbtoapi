@@ -1,6 +1,6 @@
 {
-"id": 4,
-"path": "/service4POSTBodyParam",
+"id": 12,
+"path": "/service12POSTArrayBodyParam",
 "httpMethod":"POST",
 "sqlType":"INSERT",
 "parameters": [

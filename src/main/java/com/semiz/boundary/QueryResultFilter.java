@@ -3,7 +3,9 @@ package com.semiz.boundary;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -40,7 +42,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 		final String method = context.getMethod();
 		final String path = uriInfo.getPath();
 
-		Map<String, Object> bodyParameters = new HashMap<>();
+		List<Map<String, Object>> bodyParameters = new ArrayList<>();
 		LOG.info(context.getMediaType());
 
 		Charset charset = StandardCharsets.UTF_8;
@@ -52,16 +54,24 @@ public class QueryResultFilter implements ContainerResponseFilter {
 		if (body != null && body.length() > 0) {
 			if (context.getMediaType() != null
 					&& MediaType.APPLICATION_JSON_TYPE.getType().equals(context.getMediaType().getType())
-					&& body.startsWith("{")) {
+					&& (body.startsWith("{") || body.startsWith("["))) {
 				Jsonb jsonb = JsonbBuilder.create();
-				Map map = jsonb.fromJson(body, Map.class);
-				bodyParameters.putAll(map);
+				if (body.startsWith("[")) {
+					List list = jsonb.fromJson(body, List.class);
+					bodyParameters.addAll(list);
+				}
+				else {
+					Map map = jsonb.fromJson(body, Map.class);
+					bodyParameters.add(map);
+				}
 			} else {
+				Map<String, Object> map = new HashMap<>();
 				String[] lines = body.split("&");
 				for (String line : lines) {
 					String[] keyValue = line.split("=");
-					bodyParameters.put(keyValue[0], keyValue[1]);
+					map.put(keyValue[0], keyValue[1]);
 				}
+				bodyParameters.add(map);
 			}
 		}
 

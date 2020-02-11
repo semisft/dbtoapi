@@ -17,6 +17,11 @@ public class DbConfig {
 	public DbConfig() {
 		
 	}
+	
+	public DbConfig(Integer id) {
+		this();
+		this.setId(id);
+	}
 
 	public Integer getId() {
 		return id;

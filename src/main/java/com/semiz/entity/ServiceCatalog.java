@@ -46,7 +46,7 @@ public class ServiceCatalog {
 	}
 
 	public QueryResult getSqlExecResult(ServiceItem item, MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, Map<String, Object> bodyParameters) {
+			MultivaluedMap<String, String> queryParameters, List<Map<String, Object>> bodyParameters) {
 		return item.getSqlExecResult(conn, pathParameters, queryParameters, bodyParameters);
 	}
 

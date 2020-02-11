@@ -1,0 +1,15 @@
+{
+"id": 40,
+"path": "/fruit_count",
+"httpMethod":"GET",
+"sqlType":"SELECT",
+"parameters": [
+	{
+	"type":"QUERY_PARAM",
+	"name":"id",
+	"dataType":"INTEGER",
+	"description":"The fruit ids"
+	}],
+"sql":"SELECT COUNT(*) AS COUNT FROM FRUIT WHERE ID IN (:id)",
+"description":"Number of fruits"
+}

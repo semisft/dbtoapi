@@ -6,6 +6,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 
 import com.semiz.control.ServiceCatalogStore;
+import com.semiz.entity.DbConfig;
 import com.semiz.entity.ServiceItem;
 
 import io.quarkus.test.Mock;
@@ -26,12 +27,15 @@ public class MockServiceCatalogStore implements ServiceCatalogStore {
 			"/service5POSTFormParam/conf.json",
 			"/service10PATCHPathBodyParam/conf.json",
 			"/service11DELETEPathParam/conf.json",
+			"/service12POSTArrayBodyParam/conf.json",
+			"/serviceCount/conf.json",
 	};
 	@Override
 	public List<ServiceItem> loadServices() {
 		List<ServiceItem> result = new ArrayList<>();
 		for(String conf : CONFS) {
 			ServiceItem item = ServiceItem.toServiceItem(getClass().getResourceAsStream(conf));
+			item.setDbConfig(new DbConfig(DbConnection.USE_DEFAULT_DS));
 			result.add(item);
 		}
 		return result;
