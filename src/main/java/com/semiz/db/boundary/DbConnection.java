@@ -32,11 +32,11 @@ import io.quarkus.agroal.runtime.DataSourceRuntimeConfig;
 
 @ApplicationScoped
 public class DbConnection {
-	
+
 	public static final Integer USE_DEFAULT_DS = -999;
 
 	private static final String PARAM_PREFIX = ":";
-	
+
 	@Inject
 	DataSource defaultDs;
 
@@ -47,65 +47,64 @@ public class DbConnection {
 
 	private DataSource getDatasource(DbConfig dbConfig) {
 		DataSource ds = null;
-		if (USE_DEFAULT_DS.equals(dbConfig.getId())) {
+		if (dbConfig == null || USE_DEFAULT_DS.equals(dbConfig.getId())) {
 			ds = defaultDs;
-		}
-		else {
-		String dataSourceName = "java:/ds" + dbConfig.getId();
-		if (dataSources.containsKey(dataSourceName)) {
-			ds = dataSources.get(dataSourceName);
 		} else {
-			DataSourceBuildTimeConfig dataSourceBuildTimeConfig = new DataSourceBuildTimeConfig();
-			dataSourceBuildTimeConfig.driver = Optional.of(dbConfig.getDriver());
+			String dataSourceName = "java:/ds" + dbConfig.getId();
+			if (dataSources.containsKey(dataSourceName)) {
+				ds = dataSources.get(dataSourceName);
+			} else {
+				DataSourceBuildTimeConfig dataSourceBuildTimeConfig = new DataSourceBuildTimeConfig();
+				dataSourceBuildTimeConfig.driver = Optional.of(dbConfig.getDriver());
 
-			DataSourceRuntimeConfig dataSourceRuntimeConfig = new DataSourceRuntimeConfig();
-			dataSourceRuntimeConfig.url = Optional.of(dbConfig.getUrl());
-			dataSourceRuntimeConfig.username = Optional.of(dbConfig.getUsername());
-			dataSourceRuntimeConfig.password = Optional.of(dbConfig.getPassword());
-			dataSourceRuntimeConfig.minSize = dbConfig.getMinSize();
-			dataSourceRuntimeConfig.maxSize = dbConfig.getMaxSize();
-			dataSourceRuntimeConfig.transactionIsolationLevel = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.newConnectionSql = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.enableMetrics = true;
-			dataSourceRuntimeConfig.credentialsProvider = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.initialSize = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.acquisitionTimeout = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.backgroundValidationInterval = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.validationQuerySql = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.idleRemovalInterval = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.leakDetectionInterval = Optional.ofNullable(null);
-			dataSourceRuntimeConfig.maxLifetime = Optional.ofNullable(null);
+				DataSourceRuntimeConfig dataSourceRuntimeConfig = new DataSourceRuntimeConfig();
+				dataSourceRuntimeConfig.url = Optional.of(dbConfig.getUrl());
+				dataSourceRuntimeConfig.username = Optional.of(dbConfig.getUsername());
+				dataSourceRuntimeConfig.password = Optional.of(dbConfig.getPassword());
+				dataSourceRuntimeConfig.minSize = dbConfig.getMinSize();
+				dataSourceRuntimeConfig.maxSize = dbConfig.getMaxSize();
+				dataSourceRuntimeConfig.transactionIsolationLevel = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.newConnectionSql = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.enableMetrics = true;
+				dataSourceRuntimeConfig.credentialsProvider = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.initialSize = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.acquisitionTimeout = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.backgroundValidationInterval = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.validationQuerySql = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.idleRemovalInterval = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.leakDetectionInterval = Optional.ofNullable(null);
+				dataSourceRuntimeConfig.maxLifetime = Optional.ofNullable(null);
 
-			ds = dbProducer.createDataSource(dataSourceName, dataSourceBuildTimeConfig,
-					Optional.of(dataSourceRuntimeConfig));
-			dataSources.put(dataSourceName, ds);
-		}
+				ds = dbProducer.createDataSource(dataSourceName, dataSourceBuildTimeConfig,
+						Optional.of(dataSourceRuntimeConfig));
+				dataSources.put(dataSourceName, ds);
+			}
 		}
 		return ds;
 	}
 
 	@Transactional
-	public QueryResult execute(DbConfig dbConfig, String sql, Map<String, Object> parameters, boolean isSelect, List<Map<String, Object>> bodyParameters) {
+	public QueryResult execute(DbConfig dbConfig, String sql, Map<String, Object> parameters, boolean isSelect,
+			List<Map<String, Object>> bodyParameters) {
 		QueryResult result = new QueryResult();
 
-		boolean multiUpdateBatchStmt = ! isSelect && bodyParameters.size()>1;
+		boolean multiUpdateBatchStmt = !isSelect && bodyParameters.size() > 1;
 
 		Map<String, Object> parametersProcessed = new LinkedHashMap<>();
-		//change SQL for multi-valued parameters
+		// change SQL for multi-valued parameters
 		for (Entry<String, Object> entry : parameters.entrySet()) {
 			if (ArrayList.class.equals(entry.getValue().getClass())) {
 				List<String> newParameterNames = new ArrayList<>();
 				List list = (ArrayList) entry.getValue();
 				for (int i = 0; i < list.size(); i++) {
 					Object val = list.get(i);
-					String newParameterKey = entry.getKey()+i;
+					String newParameterKey = entry.getKey() + i;
 					parametersProcessed.put(newParameterKey, val);
-					newParameterNames.add(PARAM_PREFIX+newParameterKey);
+					newParameterNames.add(PARAM_PREFIX + newParameterKey);
 				}
 				String valuesStr = newParameterNames.stream().collect(Collectors.joining(","));
-				sql = sql.replace(PARAM_PREFIX+entry.getKey(), valuesStr);
-			}
-			else {
+				sql = sql.replace(PARAM_PREFIX + entry.getKey(), valuesStr);
+			} else {
 				parametersProcessed.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -133,7 +132,6 @@ public class DbConnection {
 					st.addBatch();
 				}
 			}
-			
 
 			if (isSelect) {
 				ResultSet resultList = st.executeQuery();
@@ -155,16 +153,14 @@ public class DbConnection {
 				result.setColumns(columnNames);
 				result.setRecordCount(result.getResultList().size());
 				result.setResultCode(Response.Status.OK.getStatusCode());
-			} 
-			else {
+			} else {
 				int recordCount = 0;
 				if (multiUpdateBatchStmt) {
 					int[] recordCountInts = st.executeBatch();
 					for (int count : recordCountInts) {
 						recordCount += count;
 					}
-				}
-				else {
+				} else {
 					recordCount = st.executeUpdate();
 				}
 				result.setRecordCount(recordCount);
@@ -178,19 +174,23 @@ public class DbConnection {
 		return result;
 	}
 
-	public QueryResult select(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+	public QueryResult select(DbConfig dbConfig, String sql, Map<String, Object> parameters,
+			List<Map<String, Object>> bodyParameters) {
 		return execute(dbConfig, sql, parameters, true, bodyParameters);
 	}
 
-	public QueryResult insert(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+	public QueryResult insert(DbConfig dbConfig, String sql, Map<String, Object> parameters,
+			List<Map<String, Object>> bodyParameters) {
 		return execute(dbConfig, sql, parameters, false, bodyParameters);
 	}
 
-	public QueryResult update(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+	public QueryResult update(DbConfig dbConfig, String sql, Map<String, Object> parameters,
+			List<Map<String, Object>> bodyParameters) {
 		return execute(dbConfig, sql, parameters, false, bodyParameters);
 	}
 
-	public QueryResult delete(DbConfig dbConfig, String sql, Map<String, Object> parameters, List<Map<String, Object>> bodyParameters) {
+	public QueryResult delete(DbConfig dbConfig, String sql, Map<String, Object> parameters,
+			List<Map<String, Object>> bodyParameters) {
 		return execute(dbConfig, sql, parameters, false, bodyParameters);
 	}
 

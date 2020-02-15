@@ -43,7 +43,6 @@ public class QueryResultFilter implements ContainerResponseFilter {
 		final String path = uriInfo.getPath();
 
 		List<Map<String, Object>> bodyParameters = new ArrayList<>();
-		LOG.info(context.getMediaType());
 
 		Charset charset = StandardCharsets.UTF_8;
 		if (context.getMediaType() != null) {
