@@ -28,7 +28,7 @@ public class ConfigRepository {
 		return result;
 	}
 
-	public ServiceItem getServiceItem(Integer id) {
+	public ServiceItem getServiceItem(String id) {
 		List<ServiceItem> serviceCatalog = getServiceCatalog();
 		int serviceIndex = serviceCatalog.indexOf(new ServiceItem(id));
 		ServiceItem result = null;

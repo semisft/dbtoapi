@@ -23,7 +23,6 @@ import com.semiz.db.entity.SaveException;
 import com.semiz.entity.DbConfig;
 import com.semiz.entity.ServiceItem;
 
-@ApplicationScoped
 public class ServiceCatalogFileStore implements ServiceCatalogStore {
 
 	private static final Logger LOG = Logger.getLogger(ServiceCatalogFileStore.class);
@@ -119,8 +118,8 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
 		//TODO:check path duplicates
 		List<ServiceItem> services = loadServices();
-		Integer maxId = Math.max(1, 1 + services.stream().map(i -> i.getId()).max(Integer::compareTo).get());
-		serviceItem.setId(maxId);
+		//Integer maxId = Math.max(1, 1 + services.stream().map(i -> new Integer(i).getId()).max(Integer::compareTo).get());
+		//serviceItem.setOperationId(maxId);
 		saveToFile(serviceItem);
 		return serviceItem;
 	}
@@ -128,10 +127,10 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 	private void saveToFile(ServiceItem serviceItem) {
 		String fileText = serviceItem.serviceItemToJson();
 		try {
-			FileUtils.writeStringToFile(new File(this.servicesPath + serviceItem.getId() + ".json"), fileText,
+			FileUtils.writeStringToFile(new File(this.servicesPath + serviceItem.getOperationId() + ".json"), fileText,
 					StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			throw new SaveException(serviceItem.getPath(), serviceItem.getId(), e.getMessage());
+			throw new SaveException(serviceItem.getPath(), serviceItem.getOperationId(), e.getMessage());
 		}
 	}
 
@@ -139,7 +138,7 @@ public class ServiceCatalogFileStore implements ServiceCatalogStore {
 	@Override
 	public ServiceItem updateServiceItem(ServiceItem serviceItem) {
 		List<ServiceItem> services = loadServices();
-		Optional<ServiceItem> currentService = services.stream().filter(i -> serviceItem.getId().equals(i.getId()))
+		Optional<ServiceItem> currentService = services.stream().filter(i -> serviceItem.getOperationId().equals(i.getOperationId()))
 				.findFirst();
 		if (currentService.isPresent()) {
 			saveToFile(serviceItem);

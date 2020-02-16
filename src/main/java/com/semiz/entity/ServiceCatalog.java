@@ -20,7 +20,7 @@ public class ServiceCatalog {
 
 	private static final Logger LOG = Logger.getLogger(ServiceCatalog.class);
 
-	Map<Integer, ServiceItem> items = new HashMap<>();
+	Map<String, ServiceItem> items = new HashMap<>();
 
 	@Inject
 	DbConnection conn;
@@ -32,15 +32,15 @@ public class ServiceCatalog {
 
 	}
 
-	public Map<Integer, ServiceItem> getItems() {
+	public Map<String, ServiceItem> getItems() {
 		return items;
 	}
 
-	public void setItems(Map<Integer, ServiceItem> items) {
+	public void setItems(Map<String, ServiceItem> items) {
 		this.items = items;
 	}
 
-	public ServiceItem getItem(Integer id) {
+	public ServiceItem getItem(String id) {
 		ServiceItem result = this.items.get(id);
 		return result;
 	}
@@ -59,8 +59,8 @@ public class ServiceCatalog {
 	}
 
 	public void loadService(ServiceItem item) {
-		LOG.info(item.getHttpMethod() + " "+ item.getPath() + " service is loaded.");
-		this.items.put(item.getId(), item);
+		LOG.info(item.toString() + " service is loaded.");
+		this.items.put(item.getOperationId(), item);
 	}
 
 }

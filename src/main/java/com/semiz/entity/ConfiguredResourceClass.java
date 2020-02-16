@@ -13,13 +13,13 @@ import org.jboss.resteasy.spi.metadata.SetterParameter;
 @Path("/")
 public class ConfiguredResourceClass extends DefaultResourceClass {
 
-	Integer id;
+	String id;
 
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

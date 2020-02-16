@@ -58,8 +58,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				if (body.startsWith("[")) {
 					List list = jsonb.fromJson(body, List.class);
 					bodyParameters.addAll(list);
-				}
-				else {
+				} else {
 					Map map = jsonb.fromJson(body, Map.class);
 					bodyParameters.add(map);
 				}
@@ -74,25 +73,25 @@ public class QueryResultFilter implements ContainerResponseFilter {
 			}
 		}
 
-		Object confIdStr = responseContext.getEntity();
+		Object confId = responseContext.getEntity();
 
-		if (confIdStr != null && confIdStr.getClass().equals(Integer.class)) {
-
-			Integer confId = (Integer) confIdStr;
-
-			LOG.info("Service configuration:" + confId + " found.");
-
-			ServiceItem item = catalog.getItem(confId);
-			QueryResult result = null;
+		if (confId != null) {
+			ServiceItem item = catalog.getItem(confId.toString());
 			if (item != null) {
-				result = catalog.getSqlExecResult(item, uriInfo.getPathParameters(), uriInfo.getQueryParameters(),
-						bodyParameters);
-			} else {
-				result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
-				responseContext.setStatus(412);
+
+				LOG.info("Service configuration:" + confId + " found.");
+
+				QueryResult result = null;
+				if (item != null) {
+					result = catalog.getSqlExecResult(item, uriInfo.getPathParameters(), uriInfo.getQueryParameters(),
+							bodyParameters);
+				} else {
+					result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
+					responseContext.setStatus(412);
+				}
+				// TODO: return as context produces type
+				responseContext.setEntity(result, null, MediaType.APPLICATION_JSON_TYPE);
 			}
-			// TODO: return as context produces type
-			responseContext.setEntity(result, null, MediaType.APPLICATION_JSON_TYPE);
 		}
 	}
 }

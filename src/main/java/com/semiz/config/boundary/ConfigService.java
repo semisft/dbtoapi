@@ -45,7 +45,7 @@ public class ConfigService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/serviceItem/{id}")
-	public ServiceItem getServiceItem(@PathParam("id") Integer id) {
+	public ServiceItem getServiceItem(@PathParam("id") String id) {
 		return db.getServiceItem(id);
 	}
 
@@ -57,7 +57,7 @@ public class ConfigService {
 		ServiceItem result = db.saveServiceItem(serviceItem);
 		URI createdUri = null;
 		try {
-			createdUri = new URI("" + result.getId());
+			createdUri = new URI("" + result.getOperationId());
 		} catch (URISyntaxException e) {
 			LOG.error(e.getMessage());
 		}
