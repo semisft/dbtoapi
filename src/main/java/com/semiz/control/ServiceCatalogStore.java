@@ -1,16 +1,18 @@
 package com.semiz.control;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.semiz.entity.ServiceItem;
 
 public interface ServiceCatalogStore {
 
-	public List<ServiceItem> loadServices();
+	public Collection<ServiceItem> loadServices();
 
+	public ServiceItem getServiceItem(String serviceItemId);
+	
 	public ServiceItem saveServiceItem(ServiceItem serviceItem);
 
-	public ServiceItem updateServiceItem(ServiceItem serviceItem);
+	public Collection<ServiceItem> getServiceItems();
 
 
 }

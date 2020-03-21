@@ -3,7 +3,6 @@ package com.semiz.db.boundary;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,8 +26,10 @@ import com.semiz.db.entity.QueryResult;
 import com.semiz.entity.DbConfig;
 
 import io.quarkus.agroal.runtime.AbstractDataSourceProducer;
-import io.quarkus.agroal.runtime.DataSourceBuildTimeConfig;
-import io.quarkus.agroal.runtime.DataSourceRuntimeConfig;
+import io.quarkus.agroal.runtime.DataSourceJdbcBuildTimeConfig;
+import io.quarkus.agroal.runtime.DataSourceJdbcRuntimeConfig;
+import io.quarkus.datasource.runtime.DataSourceBuildTimeConfig;
+import io.quarkus.datasource.runtime.DataSourceRuntimeConfig;
 
 @ApplicationScoped
 public class DbConnection {
@@ -49,37 +50,49 @@ public class DbConnection {
 		DataSource ds = null;
 		if (dbConfig == null || USE_DEFAULT_DS.equals(dbConfig.getId())) {
 			ds = defaultDs;
-		} else {
-			String dataSourceName = "java:/ds" + dbConfig.getId();
-			if (dataSources.containsKey(dataSourceName)) {
-				ds = dataSources.get(dataSourceName);
-			} else {
-				DataSourceBuildTimeConfig dataSourceBuildTimeConfig = new DataSourceBuildTimeConfig();
-				dataSourceBuildTimeConfig.driver = Optional.of(dbConfig.getDriver());
-
-				DataSourceRuntimeConfig dataSourceRuntimeConfig = new DataSourceRuntimeConfig();
-				dataSourceRuntimeConfig.url = Optional.of(dbConfig.getUrl());
-				dataSourceRuntimeConfig.username = Optional.of(dbConfig.getUsername());
-				dataSourceRuntimeConfig.password = Optional.of(dbConfig.getPassword());
-				dataSourceRuntimeConfig.minSize = dbConfig.getMinSize();
-				dataSourceRuntimeConfig.maxSize = dbConfig.getMaxSize();
-				dataSourceRuntimeConfig.transactionIsolationLevel = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.newConnectionSql = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.enableMetrics = true;
-				dataSourceRuntimeConfig.credentialsProvider = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.initialSize = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.acquisitionTimeout = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.backgroundValidationInterval = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.validationQuerySql = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.idleRemovalInterval = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.leakDetectionInterval = Optional.ofNullable(null);
-				dataSourceRuntimeConfig.maxLifetime = Optional.ofNullable(null);
-
-				ds = dbProducer.createDataSource(dataSourceName, dataSourceBuildTimeConfig,
-						Optional.of(dataSourceRuntimeConfig));
+		} 
+		else {
+			String dataSourceName = "ds-" + dbConfig.getId();
+			ds = dataSources.get(dataSourceName);
+			if (ds == null) {
+				ds = newDataSource(dbConfig, dataSourceName);
 				dataSources.put(dataSourceName, ds);
 			}
 		}
+		return ds;
+	}
+
+	private DataSource newDataSource(DbConfig dbConfig, String dataSourceName) {
+		DataSourceBuildTimeConfig dataSourceBuildTimeConfig = new DataSourceBuildTimeConfig();
+		dataSourceBuildTimeConfig.dbKind = Optional.ofNullable(dbConfig.getDbKind());
+
+		DataSourceJdbcBuildTimeConfig dataSourceJdbcBuildTimeConfig = new DataSourceJdbcBuildTimeConfig();
+		dataSourceJdbcBuildTimeConfig.driver = Optional.of(dbConfig.getDriver());
+		dataSourceJdbcBuildTimeConfig.enableMetrics = Optional.of(Boolean.TRUE);
+
+		DataSourceRuntimeConfig dataSourceRuntimeConfig = new DataSourceRuntimeConfig();
+		dataSourceRuntimeConfig.username = Optional.of(dbConfig.getUsername());
+		dataSourceRuntimeConfig.password = Optional.of(dbConfig.getPassword());
+		dataSourceRuntimeConfig.credentialsProvider = Optional.ofNullable(null);
+
+		DataSourceJdbcRuntimeConfig dataSourceJdbcRuntimeConfig = new DataSourceJdbcRuntimeConfig();
+		dataSourceJdbcRuntimeConfig.url = Optional.of(dbConfig.getUrl());
+		dataSourceJdbcRuntimeConfig.minSize = dbConfig.getMinSize();
+		dataSourceJdbcRuntimeConfig.initialSize = OptionalInt.of(dbConfig.getMinSize());
+		dataSourceJdbcRuntimeConfig.maxSize = dbConfig.getMaxSize();
+		dataSourceJdbcRuntimeConfig.transactionIsolationLevel = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.newConnectionSql = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.acquisitionTimeout = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.backgroundValidationInterval = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.validationQuerySql = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.idleRemovalInterval = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.leakDetectionInterval = Optional.ofNullable(null);
+		dataSourceJdbcRuntimeConfig.maxLifetime = Optional.ofNullable(null);
+
+		DataSource ds = dbProducer.createDataSource(dataSourceName, dataSourceBuildTimeConfig, 
+				dataSourceJdbcBuildTimeConfig, dataSourceRuntimeConfig, dataSourceJdbcRuntimeConfig, 
+				null,null,null,
+				dbConfig.getDbKind(), dbConfig.getDriver(), true, false);
 		return ds;
 	}
 

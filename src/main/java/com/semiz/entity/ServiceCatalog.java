@@ -1,13 +1,10 @@
 package com.semiz.entity;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.jboss.logging.Logger;
 
@@ -20,8 +17,6 @@ public class ServiceCatalog {
 
 	private static final Logger LOG = Logger.getLogger(ServiceCatalog.class);
 
-	Map<String, ServiceItem> items = new HashMap<>();
-
 	@Inject
 	DbConnection conn;
 
@@ -32,35 +27,32 @@ public class ServiceCatalog {
 
 	}
 
-	public Map<String, ServiceItem> getItems() {
-		return items;
-	}
 
-	public void setItems(Map<String, ServiceItem> items) {
-		this.items = items;
-	}
-
-	public ServiceItem getItem(String id) {
-		ServiceItem result = this.items.get(id);
-		return result;
-	}
-
-	public QueryResult getSqlExecResult(ServiceItem item, MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, List<Map<String, Object>> bodyParameters) {
-		return item.getSqlExecResult(conn, pathParameters, queryParameters, bodyParameters);
+	public QueryResult getSqlExecResult(ServiceItem item, SqlExecParameter parameters) {
+		return item.getSqlExecResult(conn, parameters);
 	}
 
 	@PostConstruct
 	public void loadServices() {
-		List<ServiceItem> resourceFiles = catalogStore.loadServices();
-		for (ServiceItem item : resourceFiles) {
-			loadService(item);
-		}
+		catalogStore.loadServices();
 	}
 
-	public void loadService(ServiceItem item) {
-		LOG.info(item.toString() + " service is loaded.");
-		this.items.put(item.getOperationId(), item);
+
+	public Collection<ServiceItem> getServiceItems() {
+		return catalogStore.getServiceItems();
 	}
+
+	public ServiceItem getServiceItem(String id) {
+		ServiceItem result = catalogStore.getServiceItem(id);
+		return result;
+	}
+
+
+	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
+		ServiceItem result = catalogStore.saveServiceItem(serviceItem);
+		return result;
+	}
+
+	
 
 }

@@ -5,17 +5,14 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.eclipse.microprofile.openapi.models.Operation;
-import org.eclipse.microprofile.openapi.models.PathItem;
 import org.eclipse.microprofile.openapi.models.PathItem.HttpMethod;
 import org.eclipse.microprofile.openapi.models.media.Schema;
 import org.eclipse.microprofile.openapi.models.parameters.Parameter;
@@ -30,7 +27,6 @@ public class ServiceItem extends OperationImpl {
 
 	HttpMethod httpMethod;
 	String path;
-	PathItem pathItem;
 
 	ServiceItemSqlType sqlType;
 	String sql;
@@ -102,42 +98,46 @@ public class ServiceItem extends OperationImpl {
 	public void setSql(String sql) {
 		this.sql = sql;
 	}
+	
+	private void addToMap(Map<String, Object> map, Parameter defined, Object parameterValue) {
+		parameterValue = convertToType(defined, parameterValue);
+		map.put(defined.getName(), parameterValue);
+	}
 
-	public QueryResult getSqlExecResult(DbConnection conn, MultivaluedMap<String, String> pathParameters,
-			MultivaluedMap<String, String> queryParameters, List<Map<String, Object>> bodyParameters) {
+	public QueryResult getSqlExecResult(DbConnection conn, SqlExecParameter parameters) {
 		Map<String, Object> filteredParameters = new HashMap<>();
-		for (Parameter parameter : this.getParameters()) {
+		for (Parameter defined : this.getParameters()) {
 			Object parameterValue = null;
 
-			if (Parameter.In.PATH.equals(parameter.getIn())) {
-				parameterValue = checkParameter(parameter, pathParameters, parameterValue, "PATH");
-				parameterValue = convertToType(parameter, parameterValue);
-				filteredParameters.put(parameter.getName(), parameterValue);
-			} else if (Parameter.In.QUERY.equals(parameter.getIn())) {
-				parameterValue = checkParameter(parameter, queryParameters, parameterValue, "QUERY");
-				parameterValue = convertToType(parameter, parameterValue);
-				filteredParameters.put(parameter.getName(), parameterValue);
+			if (Parameter.In.PATH.equals(defined.getIn())) {
+				parameterValue = checkParameter(defined, parameters.getPathParameters(), parameterValue, "PATH");
+				addToMap(filteredParameters, defined, parameterValue);
+			} 
+			else if (Parameter.In.QUERY.equals(defined.getIn())) {
+				parameterValue = checkParameter(defined, parameters.getQueryParameters(), parameterValue, "QUERY");
+				addToMap(filteredParameters, defined, parameterValue);
 			}
-			// TODO: HEADER COOKIE
-			else if (ParameterType.BODY_PARAM.equals(parameter.getIn())) {
-				for (Iterator iterator = bodyParameters.iterator(); iterator.hasNext();) {
-					Map<String, Object> bodyItem = (Map<String, Object>) iterator.next();
-					parameterValue = checkParameter(parameter, bodyItem, parameterValue, "BODY");
-					bodyItem.put(parameter.getName(), parameterValue);
-				}
-			} else {
-				throw new ParameterException(parameter.getName(), "", parameter.getIn() + " parameter type not known");
+			else if (Parameter.In.HEADER.equals(defined.getIn())) {
+				parameterValue = checkParameter(defined, parameters.getHeaderParameters(), parameterValue, "HEADER");
+				addToMap(filteredParameters, defined, parameterValue);
+			}
+			else if (Parameter.In.COOKIE.equals(defined.getIn())) {
+				parameterValue = checkParameter(defined, parameters.getCookieParameters(), parameterValue, "COOKIE");
+				addToMap(filteredParameters, defined, parameterValue);
+			}
+			else {
+				throw new ParameterException(defined.getName(), "", defined.getIn() + " parameter type not known");
 			}
 		}
 
 		if (ServiceItemSqlType.SELECT.equals(this.getSqlType())) {
-			return conn.select(this.getDbConfig(), this.getSql(), filteredParameters, bodyParameters);
+			return conn.select(this.getDbConfig(), this.getSql(), filteredParameters, parameters.getBodyParameters());
 		} else if (ServiceItemSqlType.INSERT.equals(this.getSqlType())) {
-			return conn.insert(this.getDbConfig(), this.getSql(), filteredParameters, bodyParameters);
+			return conn.insert(this.getDbConfig(), this.getSql(), filteredParameters, parameters.getBodyParameters());
 		} else if (ServiceItemSqlType.UPDATE.equals(this.getSqlType())) {
-			return conn.update(this.getDbConfig(), this.getSql(), filteredParameters, bodyParameters);
+			return conn.update(this.getDbConfig(), this.getSql(), filteredParameters, parameters.getBodyParameters());
 		} else if (ServiceItemSqlType.DELETE.equals(this.getSqlType())) {
-			return conn.delete(this.getDbConfig(), this.getSql(), filteredParameters, bodyParameters);
+			return conn.delete(this.getDbConfig(), this.getSql(), filteredParameters, parameters.getBodyParameters());
 		}
 		// TODO: exec stored proc
 		else {
@@ -225,12 +225,10 @@ public class ServiceItem extends OperationImpl {
 		this.path = path;
 	}
 
-	public PathItem getPathItem() {
-		return pathItem;
-	}
-
-	public void setPathItem(PathItem pathItem) {
-		this.pathItem = pathItem;
+	
+	@Override
+	public String toString() {
+		return "["+this.getHttpMethod() + " "+ this.getPath()+"]";
 	}
 
 }

@@ -2,9 +2,12 @@ package com.semiz.control;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.openapi.models.OpenAPI;
@@ -19,15 +22,16 @@ import io.smallrye.openapi.runtime.OpenApiStaticFile;
 import io.smallrye.openapi.runtime.io.OpenApiSerializer;
 
 @ApplicationScoped
-public class ServiceCatalogOpenApiStore extends ServiceCatalogFileStore {
+public class ServiceCatalogOpenApiStore implements ServiceCatalogStore {
 
 	public static void main(String[] args) {
 		new ServiceCatalogOpenApiStore().loadServices();
 	}
 
+	Map<String, ServiceItem> services = new HashMap<>();
+	
 	@Override
-	public List<ServiceItem> loadServices() {
-		List<ServiceItem> result = new ArrayList<>();
+	public Collection<ServiceItem> loadServices() {
 		try {
 			OpenAPI doc = loadDocument("services/openapi.json");
 			Paths paths = doc.getPaths();
@@ -38,9 +42,9 @@ public class ServiceCatalogOpenApiStore extends ServiceCatalogFileStore {
 					ServiceItem item = new ServiceItem(op);
 					item.setHttpMethod(method);
 					item.setPath(path);
-					item.setPathItem(pathItem);
+					//item.setPathItem(pathItem);
 					setOperation(pathItem, item);
-					result.add(item);
+					services.put(item.getOperationId(), item);
 				}
 			}
 			System.out.println(paths);
@@ -48,7 +52,7 @@ public class ServiceCatalogOpenApiStore extends ServiceCatalogFileStore {
 			e.printStackTrace();
 		}
 
-		return result;
+		return services.values();
 	}
 
 	private void setOperation(PathItem pathItem, ServiceItem item) {
@@ -56,7 +60,7 @@ public class ServiceCatalogOpenApiStore extends ServiceCatalogFileStore {
 		case GET:
 			pathItem.GET(item);
 			break;
-		case  POST:
+		case POST:
 			pathItem.POST(item);
 			break;
 		case PUT:
@@ -82,12 +86,8 @@ public class ServiceCatalogOpenApiStore extends ServiceCatalogFileStore {
 
 	@Override
 	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
-		return super.saveServiceItem(serviceItem);
-	}
-
-	@Override
-	public ServiceItem updateServiceItem(ServiceItem serviceItem) {
-		return super.updateServiceItem(serviceItem);
+		services.put(serviceItem.getOperationId(), serviceItem);
+		return serviceItem;
 	}
 
 	OpenAPI loadDocument(String resourceName) throws IOException {
@@ -100,6 +100,16 @@ public class ServiceCatalogOpenApiStore extends ServiceCatalogFileStore {
 			}
 		}
 		return document;
+	}
+
+	@Override
+	public ServiceItem getServiceItem(String serviceItemId) {
+		return services.get(serviceItemId);
+	}
+
+	@Override
+	public Collection<ServiceItem> getServiceItems() {
+		return services.values();
 	}
 
 }

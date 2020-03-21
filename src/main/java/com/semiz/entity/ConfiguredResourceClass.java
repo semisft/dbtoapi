@@ -13,14 +13,14 @@ import org.jboss.resteasy.spi.metadata.SetterParameter;
 @Path("/")
 public class ConfiguredResourceClass extends DefaultResourceClass {
 
-	String id;
+	ServiceItem serviceItem;
 
-	public String getId() {
-		return id;
+	public ServiceItem getServiceItem() {
+		return serviceItem;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setServiceItem(ServiceItem serviceItem) {
+		this.serviceItem = serviceItem;
 	}
 
 	public ConfiguredResourceClass() {
@@ -61,7 +61,7 @@ public class ConfiguredResourceClass extends DefaultResourceClass {
 	}
 
 	public Response actualMethod() {
-		return Response.ok(this.id).build();
+		return Response.ok(this.serviceItem).build();
 	}
 
 }

@@ -6,6 +6,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 public class DbConfig {
+	
 	Integer id;
 	String url;
 	String driver;
@@ -13,6 +14,7 @@ public class DbConfig {
 	String password;
 	Integer minSize;
 	Integer maxSize;
+	String dbKind;
 
 	public DbConfig() {
 		
@@ -77,6 +79,14 @@ public class DbConfig {
 
 	public void setMaxSize(Integer maxSize) {
 		this.maxSize = maxSize;
+	}
+	
+	public String getDbKind() {
+		return dbKind;
+	}
+
+	public void setDbKind(String dbKind) {
+		this.dbKind = dbKind;
 	}
 
 	public static DbConfig toDbConfig(InputStream is) {
