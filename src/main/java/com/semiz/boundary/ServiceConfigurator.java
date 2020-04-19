@@ -1,9 +1,11 @@
 package com.semiz.boundary;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,11 +21,14 @@ import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.metadata.ResourceLocator;
 import org.jboss.resteasy.spi.metadata.ResourceMethod;
 
+import com.semiz.db.entity.DbConfig;
+import com.semiz.db.entity.DbKind;
 import com.semiz.entity.ConfiguredResourceClass;
 import com.semiz.entity.ConfiguredResourceMethod;
-import com.semiz.entity.DbConfig;
 import com.semiz.entity.ServiceCatalog;
 import com.semiz.entity.ServiceItem;
+
+import io.quarkus.datasource.common.runtime.DatabaseKind;
 
 @ApplicationScoped
 public class ServiceConfigurator {
@@ -147,6 +152,9 @@ public class ServiceConfigurator {
 	 * @return
 	 */
 	public DbConfig addDbConfig(DbConfig connection) {
+		if (connection.getId() == null) {
+			connection.setId(connections.size()+1);
+		}
 		connections.put(connection.getId(), connection);
 		for (Iterator iterator = services.values().iterator(); iterator.hasNext();) {
 			ConfiguredResourceClass cls = (ConfiguredResourceClass) iterator.next();
@@ -160,6 +168,17 @@ public class ServiceConfigurator {
 	public DbConfig updateDbConfig(DbConfig connection) {
 		connections.put(connection.getId(), connection);
 		return connection;
+	}
+
+	public Collection<DbKind> getDbKinds() {
+		List<DbKind> result = new ArrayList<>();
+		result.add(new DbKind(DatabaseKind.POSTGRESQL, "", "jdbc:postgresql://host:port/database"));
+		result.add(new DbKind(DatabaseKind.MARIADB, "", "jdbc:mysql://host:port/database"));
+		result.add(new DbKind(DatabaseKind.MYSQL, "", "jdbc:mysql://host:port/database"));
+		result.add(new DbKind(DatabaseKind.DERBY, "", "jdbc:derby://host:port/database"));
+		result.add(new DbKind(DatabaseKind.H2, "", "jdbc:h2://host:port/database"));
+		result.add(new DbKind("oracle", "oracle.jdbc.driver.OracleDriver", "jdbc:oracle:thin:@localhost:1521:xe"));
+		return result;
 	}
 
 }

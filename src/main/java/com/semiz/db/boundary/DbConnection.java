@@ -20,10 +20,10 @@ import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 
+import com.semiz.db.entity.DbConfig;
 import com.semiz.db.entity.NamedParameterPreparedStatement;
 import com.semiz.db.entity.ParameterException;
 import com.semiz.db.entity.QueryResult;
-import com.semiz.entity.DbConfig;
 
 import io.quarkus.agroal.runtime.AbstractDataSourceProducer;
 import io.quarkus.agroal.runtime.DataSourceJdbcBuildTimeConfig;

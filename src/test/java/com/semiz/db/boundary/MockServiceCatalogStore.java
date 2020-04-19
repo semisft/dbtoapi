@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 
 import com.semiz.control.ServiceCatalogStore;
-import com.semiz.entity.DbConfig;
+import com.semiz.db.entity.DbConfig;
 import com.semiz.entity.ServiceItem;
 
 import io.quarkus.test.Mock;

@@ -28,7 +28,7 @@ public class ServiceCatalog {
 	}
 
 
-	public QueryResult getSqlExecResult(ServiceItem item, SqlExecParameter parameters) {
+	public QueryResult getSqlExecResult(ServiceItem item, ExecParameter parameters) {
 		return item.getSqlExecResult(conn, parameters);
 	}
 

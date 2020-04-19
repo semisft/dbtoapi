@@ -30,7 +30,7 @@ import org.jboss.logging.Logger;
 import com.semiz.db.entity.QueryResult;
 import com.semiz.entity.ServiceCatalog;
 import com.semiz.entity.ServiceItem;
-import com.semiz.entity.SqlExecParameter;
+import com.semiz.entity.ExecParameter;
 
 @Provider
 public class QueryResultFilter implements ContainerResponseFilter {
@@ -90,7 +90,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 
 				LOG.info("Service configuration:" + confId + " found.");
 
-				SqlExecParameter param = new SqlExecParameter();
+				ExecParameter param = new ExecParameter();
 				param.setHeaderParameters(context.getHeaders());
 				param.setPathParameters(uriInfo.getPathParameters());
 				param.setQueryParameters(uriInfo.getQueryParameters());

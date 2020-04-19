@@ -1,25 +1,39 @@
-package com.semiz.entity;
+package com.semiz.db.entity;
 
 import java.io.InputStream;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.validation.constraints.NotNull;
 
 public class DbConfig {
-	
+
 	Integer id;
-	String url;
-	String driver;
-	String username;
-	String password;
-	Integer minSize;
-	Integer maxSize;
+
+	@NotNull
+	String name;
+
 	String dbKind;
 
+	@NotNull
+	String url;
+
+	@NotNull
+	String driver;
+
+	@NotNull
+	String username;
+
+	@NotNull
+	String password;
+
+	Integer minSize;
+	Integer maxSize;
+
 	public DbConfig() {
-		
+
 	}
-	
+
 	public DbConfig(Integer id) {
 		this();
 		this.setId(id);
@@ -31,6 +45,14 @@ public class DbConfig {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getUrl() {
@@ -80,7 +102,7 @@ public class DbConfig {
 	public void setMaxSize(Integer maxSize) {
 		this.maxSize = maxSize;
 	}
-	
+
 	public String getDbKind() {
 		return dbKind;
 	}

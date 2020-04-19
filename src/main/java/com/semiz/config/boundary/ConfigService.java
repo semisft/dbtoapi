@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -20,11 +22,13 @@ import javax.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 
 import com.semiz.boundary.ServiceConfigurator;
-import com.semiz.entity.DbConfig;
+import com.semiz.db.entity.DbConfig;
+import com.semiz.db.entity.DbKind;
 import com.semiz.entity.ServiceItem;
 
 @Path("/config")
-@ApplicationScoped
+@Transactional
+@RequestScoped
 public class ConfigService {
 	private static final Logger LOG = Logger.getLogger(ConfigService.class);
 
@@ -95,7 +99,7 @@ public class ConfigService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/connection")
-	public Response addDbConfig(DbConfig connection) {
+	public Response addDbConfig(@Valid DbConfig connection) {
 		DbConfig result = serviceConfigurator.addDbConfig(connection);
 		URI createdUri = null;
 		try {
@@ -114,4 +118,13 @@ public class ConfigService {
 		DbConfig result = serviceConfigurator.updateDbConfig(connection);
 		return Response.ok(result).build();
 	}
+	
+	@GET
+	@Path("/dbkind")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<DbKind> getDbKinds() {
+		return serviceConfigurator.getDbKinds();
+	}
+
 }

@@ -18,6 +18,7 @@ import org.eclipse.microprofile.openapi.models.media.Schema;
 import org.eclipse.microprofile.openapi.models.parameters.Parameter;
 
 import com.semiz.db.boundary.DbConnection;
+import com.semiz.db.entity.DbConfig;
 import com.semiz.db.entity.ParameterException;
 import com.semiz.db.entity.QueryResult;
 
@@ -104,7 +105,7 @@ public class ServiceItem extends OperationImpl {
 		map.put(defined.getName(), parameterValue);
 	}
 
-	public QueryResult getSqlExecResult(DbConnection conn, SqlExecParameter parameters) {
+	public QueryResult getSqlExecResult(DbConnection conn, ExecParameter parameters) {
 		Map<String, Object> filteredParameters = new HashMap<>();
 		for (Parameter defined : this.getParameters()) {
 			Object parameterValue = null;

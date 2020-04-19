@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-public class SqlExecParameter {
+public class ExecParameter {
 	
 	MultivaluedMap<String, String> headerParameters;
 	MultivaluedMap<String, String> pathParameters;
@@ -13,7 +13,7 @@ public class SqlExecParameter {
 	MultivaluedMap<String, String> cookieParameters; 
 	List<Map<String, Object>> bodyParameters;
 	
-	public SqlExecParameter() {
+	public ExecParameter() {
 		
 	}
 
