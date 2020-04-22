@@ -3,17 +3,17 @@
 "path": "/service7GETPathQueryParam/{id}",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"PATH_PARAM",
+	"in":"PATH",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The fruit id"
 	},
 	{
-	"type":"QUERY_PARAM",
+	"in":"QUERY",
 	"name":"quantity",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The min value required"
 	}
 ],

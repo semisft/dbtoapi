@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 
 import com.semiz.boundary.ServiceConfigurator;
+import com.semiz.config.entity.ServiceParameter;
 import com.semiz.db.entity.DbConfig;
 import com.semiz.db.entity.DbKind;
 import com.semiz.entity.ServiceItem;
@@ -120,11 +121,42 @@ public class ConfigService {
 	}
 	
 	@GET
-	@Path("/dbkind")
+	@Path("/db_kind")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Collection<DbKind> getDbKinds() {
 		return serviceConfigurator.getDbKinds();
 	}
 
+	@GET
+	@Path("/http_method")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<ServiceParameter> getHttpMethods() {
+		return serviceConfigurator.getHttpMethods();
+	}
+
+	@GET
+	@Path("/sql_type")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<ServiceParameter> getSqlTypes() {
+		return serviceConfigurator.getSqlTypes();
+	}
+
+	@GET
+	@Path("/in")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<ServiceParameter> getIns() {
+		return serviceConfigurator.getIns();
+	}
+
+	@GET
+	@Path("/schema_type")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<ServiceParameter> getSchemaTypes() {
+		return serviceConfigurator.getSchemaTypes();
+	}
 }

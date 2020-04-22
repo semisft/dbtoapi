@@ -3,11 +3,11 @@
 "path": "/service10PATCHPathBodyParam/{id}",
 "httpMethod":"PATCH",
 "sqlType":"UPDATE",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"PATH_PARAM",
+	"in":"PATH",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schema":"{\"type\":\"INTEGER\"}",
 	"description":"The unique id of the fruit"
 	},
 	{

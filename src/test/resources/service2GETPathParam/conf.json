@@ -3,11 +3,11 @@
 "path": "/service2GETPathParam/{id}",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"PATH_PARAM",
+	"in":"PATH",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The unique id of the table"
 	}
 ],

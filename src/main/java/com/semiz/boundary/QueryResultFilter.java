@@ -102,7 +102,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				}
 
 				result = catalog.getSqlExecResult(item, param);
-				metricRegistry.counter(item.getOperationId()).inc();
+				//metricRegistry.counter(item.getOperationId()).inc();
 
 			} else {
 				result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());

@@ -3,11 +3,11 @@
 "path": "/fruit_count",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"QUERY_PARAM",
+	"in":"QUERY",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The fruit ids"
 	}],
 "sql":"SELECT COUNT(*) AS COUNT FROM FRUIT WHERE ID IN (:id)",

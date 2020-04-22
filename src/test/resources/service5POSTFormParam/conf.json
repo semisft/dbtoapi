@@ -5,17 +5,17 @@
 "consumes":"text/plain",
 "produces":"application/json",
 "sqlType":"INSERT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"BODY_PARAM",
+	"in":"BODY",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The unique id of the table"
 	},
 	{
-	"type":"BODY_PARAM",
+	"in":"BODY",
 	"name":"name",
-	"dataType":"STRING",
+	"schemaType":"STRING",
 	"description":"The unique id of the table"
 	}
 ],

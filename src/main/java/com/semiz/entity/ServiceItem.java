@@ -34,6 +34,8 @@ public class ServiceItem extends OperationImpl {
 	Integer dbConfigId;
 
 	DbConfig dbConfig;
+	
+	List<ServiceItemParameter> serviceParameters;
 
 	public ServiceItem() {
 
@@ -225,8 +227,17 @@ public class ServiceItem extends OperationImpl {
 	public void setPath(String path) {
 		this.path = path;
 	}
-
 	
+	public List<ServiceItemParameter> getServiceParameters() {
+		return serviceParameters;
+	}
+
+	public void setServiceParameters(List<ServiceItemParameter> serviceParameters) {
+		this.serviceParameters = serviceParameters;
+		this.setParameters(new ArrayList());
+		this.getParameters().addAll(serviceParameters);
+	}
+
 	@Override
 	public String toString() {
 		return "["+this.getHttpMethod() + " "+ this.getPath()+"]";

@@ -3,11 +3,11 @@
 "path": "/service3GETQueryParam",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"QUERY_PARAM",
+	"in":"QUERY",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The unique id of the table"
 	}
 ],

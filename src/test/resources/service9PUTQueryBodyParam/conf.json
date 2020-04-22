@@ -3,17 +3,17 @@
 "path": "/service9PUTQueryBodyParam",
 "httpMethod":"PUT",
 "sqlType":"UPDATE",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"QUERY_PARAM",
+	"in":"QUERY",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The unique id of the fruit"
 	},
 	{
-	"type":"BODY_PARAM",
+	"in":"BODY",
 	"name":"name",
-	"dataType":"STRING",
+	"schemaType":"STRING",
 	"description":"The name of fruit"
 	}
 ],

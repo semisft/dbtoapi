@@ -32,6 +32,7 @@ public class ServiceCatalogOpenApiStore implements ServiceCatalogStore {
 	
 	@Override
 	public Collection<ServiceItem> loadServices() {
+		/*
 		try {
 			OpenAPI doc = loadDocument("services/openapi.json");
 			Paths paths = doc.getPaths();
@@ -42,7 +43,6 @@ public class ServiceCatalogOpenApiStore implements ServiceCatalogStore {
 					ServiceItem item = new ServiceItem(op);
 					item.setHttpMethod(method);
 					item.setPath(path);
-					//item.setPathItem(pathItem);
 					setOperation(pathItem, item);
 					services.put(item.getOperationId(), item);
 				}
@@ -51,7 +51,7 @@ public class ServiceCatalogOpenApiStore implements ServiceCatalogStore {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		*/
 		return services.values();
 	}
 

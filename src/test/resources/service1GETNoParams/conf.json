@@ -3,7 +3,7 @@
 "path": "/service1GETNoParams",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"parameters": [],
+"serviceParameters": [],
 "sql":"SELECT * FROM FRUIT WHERE ID IN (1,2)",
 "description":"All fruits"
 }

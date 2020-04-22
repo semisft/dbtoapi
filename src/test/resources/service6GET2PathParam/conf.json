@@ -3,17 +3,17 @@
 "path": "/service6GET2PathParam/{id}/{country}",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"PATH_PARAM",
+	"in":"PATH",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The unique id of the table"
 	},
 	{
-	"type":"PATH_PARAM",
+	"in":"PATH",
 	"name":"country",
-	"dataType":"STRING",
+	"schemaType":"STRING",
 	"description":"The country name fruit exported"
 	}
 ],

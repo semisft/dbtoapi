@@ -3,17 +3,17 @@
 "path": "/service12POSTArrayBodyParam",
 "httpMethod":"POST",
 "sqlType":"INSERT",
-"parameters": [
+"serviceParameters": [
 	{
-	"type":"BODY_PARAM",
+	"in":"BODY",
 	"name":"id",
-	"dataType":"INTEGER",
+	"schemaType":"INTEGER",
 	"description":"The unique id of the fruit"
 	},
 	{
-	"type":"BODY_PARAM",
+	"in":"BODY",
 	"name":"name",
-	"dataType":"STRING",
+	"schemaType":"STRING",
 	"description":"The name of the fruit"
 	}
 ],
