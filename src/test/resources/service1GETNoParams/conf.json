@@ -1,9 +1,9 @@
 {
-"id": 1,
+"operationId": 1,
 "path": "/service1GETNoParams",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"serviceParameters": [],
+"parameters": [],
 "sql":"SELECT * FROM FRUIT WHERE ID IN (1,2)",
 "description":"All fruits"
 }

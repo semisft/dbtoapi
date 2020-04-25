@@ -1,9 +1,9 @@
 {
-"id": 40,
+"operationId": 40,
 "path": "/fruit_count",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"QUERY",
 	"name":"id",

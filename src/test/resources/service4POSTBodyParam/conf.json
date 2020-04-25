@@ -1,9 +1,9 @@
 {
-"id": 4,
+"operationId": 4,
 "path": "/service4POSTBodyParam",
 "httpMethod":"POST",
 "sqlType":"INSERT",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"BODY",
 	"name":"id",

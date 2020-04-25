@@ -1,9 +1,9 @@
 {
-"id": 8,
+"operationId": 8,
 "path": "/service8PUTPathBodyParam/{id}",
 "httpMethod":"PUT",
 "sqlType":"UPDATE",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"PATH",
 	"name":"id",

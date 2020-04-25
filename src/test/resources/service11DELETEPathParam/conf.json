@@ -1,9 +1,9 @@
 {
-"id": 11,
+"operationId": 11,
 "path": "/service11DELETEPathParam/{id}",
 "httpMethod":"DELETE",
 "sqlType":"DELETE",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"PATH",
 	"name":"id",

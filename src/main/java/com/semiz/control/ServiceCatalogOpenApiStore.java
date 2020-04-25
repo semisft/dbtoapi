@@ -51,41 +51,46 @@ public class ServiceCatalogOpenApiStore implements ServiceCatalogStore {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+	private void setOperation(PathItem pathItem, ServiceItem item) {
+		
+		switch (item.getHttpMethod()) {
+		case GET:
+			pathItem.GET(item.toOperation());
+			break;
+		case POST:
+			pathItem.POST(item.toOperation());
+			break;
+		case PUT:
+			pathItem.PUT(item.toOperation());
+			break;
+		case PATCH:
+			pathItem.PATCH(item.toOperation());
+			break;
+		case DELETE:
+			pathItem.DELETE(item.toOperation());
+			break;
+		case HEAD:
+			pathItem.HEAD(item.toOperation());
+			break;
+		case OPTIONS:
+			pathItem.OPTIONS(item.toOperation());
+			break;
+		case TRACE:
+			pathItem.TRACE(item.toOperation());
+			break;
+		}
+	}
 		*/
 		return services.values();
 	}
 
-	private void setOperation(PathItem pathItem, ServiceItem item) {
-		switch (item.getHttpMethod()) {
-		case GET:
-			pathItem.GET(item);
-			break;
-		case POST:
-			pathItem.POST(item);
-			break;
-		case PUT:
-			pathItem.PUT(item);
-			break;
-		case PATCH:
-			pathItem.PATCH(item);
-			break;
-		case DELETE:
-			pathItem.DELETE(item);
-			break;
-		case HEAD:
-			pathItem.HEAD(item);
-			break;
-		case OPTIONS:
-			pathItem.OPTIONS(item);
-			break;
-		case TRACE:
-			pathItem.TRACE(item);
-			break;
-		}
-	}
 
 	@Override
 	public ServiceItem saveServiceItem(ServiceItem serviceItem) {
+		if (serviceItem.getOperationId() == null) {
+			serviceItem.setOperationId(Integer.toString(services.size()+1));
+		}
 		services.put(serviceItem.getOperationId(), serviceItem);
 		return serviceItem;
 	}

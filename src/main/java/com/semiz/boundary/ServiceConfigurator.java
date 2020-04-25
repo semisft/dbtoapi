@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.openapi.models.Operation;
 import org.eclipse.microprofile.openapi.models.PathItem.HttpMethod;
 import org.eclipse.microprofile.openapi.models.media.Schema;
 import org.eclipse.microprofile.openapi.models.parameters.Parameter;
@@ -73,13 +74,15 @@ public class ServiceConfigurator {
 			actualMethod = ConfiguredResourceClass.class.getMethod("actualMethod");
 			final ConfiguredResourceMethod method = new ConfiguredResourceMethod(result, actualMethod, actualMethod);
 
-			if (item.getRequestBody() != null) {
-				method.setConsumes(toMediaTypes(item.getRequestBody().getContent().getMediaTypes().keySet()));
+			Operation operation = item.toOperation();
+			
+			if (operation.getRequestBody() != null) {
+				method.setConsumes(toMediaTypes(operation.getRequestBody().getContent().getMediaTypes().keySet()));
 			} else {
 				method.setConsumes(MediaType.APPLICATION_JSON_TYPE);
 			}
-			if (item.getResponses() != null) {
-				final APIResponse apiResponse = item.getResponses().getAPIResponse("200");
+			if (operation.getResponses() != null) {
+				final APIResponse apiResponse = operation.getResponses().getAPIResponse(String.valueOf(Response.Status.OK.getStatusCode()));
 				method.setProduces(toMediaTypes(apiResponse.getContent().getMediaTypes().keySet()));
 			} else {
 				method.setProduces(MediaType.APPLICATION_JSON_TYPE);
@@ -224,7 +227,7 @@ public class ServiceConfigurator {
 	}
 
 	public Collection<ServiceParameter> getSchemaTypes() {
-		return this.getValueNames(Schema.SchemaType.values(), "\'{\' \"type\":\"{0}\" \'}\'");
+		return this.getValueNames(Schema.SchemaType.values());
 	}
 	
 

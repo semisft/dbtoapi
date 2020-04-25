@@ -17,6 +17,7 @@ import io.quarkus.test.Mock;
 public class MockServiceCatalogStore implements ServiceCatalogStore {
 
 	private static String[] CONFS = new String[] { 
+
 			"/service1GETNoParams/conf.json", 
 			"/service2GETPathParam/conf.json",
 			"/service6GET2PathParam/conf.json", 
@@ -30,6 +31,7 @@ public class MockServiceCatalogStore implements ServiceCatalogStore {
 			"/service11DELETEPathParam/conf.json", 
 			"/service12POSTArrayBodyParam/conf.json",
 			"/serviceCount/conf.json", 
+			
 	};
 
 	Map<String, ServiceItem> services = new HashMap<>();

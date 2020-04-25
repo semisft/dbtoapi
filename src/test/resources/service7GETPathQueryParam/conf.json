@@ -1,9 +1,9 @@
 {
-"id": 7,
+"operationId": 7,
 "path": "/service7GETPathQueryParam/{id}",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"PATH",
 	"name":"id",

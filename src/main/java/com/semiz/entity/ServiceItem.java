@@ -8,14 +8,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.models.Operation;
 import org.eclipse.microprofile.openapi.models.PathItem.HttpMethod;
+import org.eclipse.microprofile.openapi.models.media.MediaType;
 import org.eclipse.microprofile.openapi.models.media.Schema;
 import org.eclipse.microprofile.openapi.models.parameters.Parameter;
+import org.eclipse.microprofile.openapi.models.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.models.responses.APIResponse;
+import org.eclipse.microprofile.openapi.models.responses.APIResponses;
 
 import com.semiz.db.boundary.DbConnection;
 import com.semiz.db.entity.DbConfig;
@@ -23,19 +29,29 @@ import com.semiz.db.entity.ParameterException;
 import com.semiz.db.entity.QueryResult;
 
 import io.smallrye.openapi.api.models.OperationImpl;
+import io.smallrye.openapi.api.models.media.ContentImpl;
+import io.smallrye.openapi.api.models.media.MediaTypeImpl;
+import io.smallrye.openapi.api.models.parameters.RequestBodyImpl;
+import io.smallrye.openapi.api.models.responses.APIResponseImpl;
+import io.smallrye.openapi.api.models.responses.APIResponsesImpl;
 
-public class ServiceItem extends OperationImpl {
+public class ServiceItem {
 
-	HttpMethod httpMethod;
+	String operationId;
+	String description;
+
 	String path;
+	HttpMethod httpMethod;
+	String consumes;
+	String produces;
 
 	ServiceItemSqlType sqlType;
 	String sql;
 	Integer dbConfigId;
 
 	DbConfig dbConfig;
-	
-	List<ServiceItemParameter> serviceParameters;
+
+	List<ServiceItemParameter> parameters;
 
 	public ServiceItem() {
 
@@ -46,27 +62,28 @@ public class ServiceItem extends OperationImpl {
 		this.setOperationId(operationId);
 	}
 
-	public ServiceItem(Operation op) {
-		this.setCallbacks(op.getCallbacks());
-		this.setExtensions(op.getExtensions());
-		this.setExternalDocs(op.getExternalDocs());
-		this.setDeprecated(op.getDeprecated());
-		this.setDescription(op.getDescription());
-		this.setOperationId(op.getOperationId());
-		this.setParameters(op.getParameters());
-		this.setRequestBody(op.getRequestBody());
-		this.setResponses(op.getResponses());
-		this.setSecurity(op.getSecurity());
-		this.setServers(op.getServers());
-		this.setTags(op.getTags());
+	public String getOperationId() {
+		return operationId;
+	}
 
-		// Summary used for SQL and dbconfig
-		if (op.getSummary() != null) {
-			String[] dbSettings = op.getSummary().split("é");
-			this.setDbConfigId(Integer.parseInt(dbSettings[0]));
-			this.setSqlType(ServiceItemSqlType.valueOf(dbSettings[1]));
-			this.setSql(dbSettings[2]);
-		}
+	public void setOperationId(String operationId) {
+		this.operationId = operationId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<ServiceItemParameter> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(List<ServiceItemParameter> parameters) {
+		this.parameters = parameters;
 	}
 
 	public Integer getDbConfigId() {
@@ -101,34 +118,48 @@ public class ServiceItem extends OperationImpl {
 	public void setSql(String sql) {
 		this.sql = sql;
 	}
-	
-	private void addToMap(Map<String, Object> map, Parameter defined, Object parameterValue) {
+
+	public String getConsumes() {
+		return consumes;
+	}
+
+	public void setConsumes(String consumes) {
+		this.consumes = consumes;
+	}
+
+	public String getProduces() {
+		return produces;
+	}
+
+	public void setProduces(String produces) {
+		this.produces = produces;
+	}
+
+	private void addToMap(Map<String, Object> map, ServiceItemParameter defined, Object parameterValue) {
 		parameterValue = convertToType(defined, parameterValue);
 		map.put(defined.getName(), parameterValue);
 	}
 
 	public QueryResult getSqlExecResult(DbConnection conn, ExecParameter parameters) {
 		Map<String, Object> filteredParameters = new HashMap<>();
-		for (Parameter defined : this.getParameters()) {
+		for (ServiceItemParameter defined : this.getParameters()) {
 			Object parameterValue = null;
 
-			if (Parameter.In.PATH.equals(defined.getIn())) {
+			if (Parameter.In.PATH.toString().equalsIgnoreCase(defined.getIn())) {
 				parameterValue = checkParameter(defined, parameters.getPathParameters(), parameterValue, "PATH");
 				addToMap(filteredParameters, defined, parameterValue);
-			} 
-			else if (Parameter.In.QUERY.equals(defined.getIn())) {
+			} else if (Parameter.In.QUERY.toString().equalsIgnoreCase(defined.getIn())) {
 				parameterValue = checkParameter(defined, parameters.getQueryParameters(), parameterValue, "QUERY");
 				addToMap(filteredParameters, defined, parameterValue);
-			}
-			else if (Parameter.In.HEADER.equals(defined.getIn())) {
+			} else if (Parameter.In.HEADER.toString().equalsIgnoreCase(defined.getIn())) {
 				parameterValue = checkParameter(defined, parameters.getHeaderParameters(), parameterValue, "HEADER");
 				addToMap(filteredParameters, defined, parameterValue);
-			}
-			else if (Parameter.In.COOKIE.equals(defined.getIn())) {
+			} else if (Parameter.In.COOKIE.toString().equalsIgnoreCase(defined.getIn())) {
 				parameterValue = checkParameter(defined, parameters.getCookieParameters(), parameterValue, "COOKIE");
 				addToMap(filteredParameters, defined, parameterValue);
-			}
-			else {
+			} else if (ServiceItemParameter.BODY.equalsIgnoreCase(defined.getIn())) {
+				// No check
+			} else {
 				throw new ParameterException(defined.getName(), "", defined.getIn() + " parameter type not known");
 			}
 		}
@@ -149,7 +180,8 @@ public class ServiceItem extends OperationImpl {
 
 	}
 
-	private Object checkParameter(Parameter parameter, Map queryParameters, Object parameterValue, String messageKey) {
+	private Object checkParameter(ServiceItemParameter parameter, Map queryParameters, Object parameterValue,
+			String messageKey) {
 		if (queryParameters.containsKey(parameter.getName())) {
 			parameterValue = queryParameters.get(parameter.getName());
 		} else {
@@ -170,7 +202,7 @@ public class ServiceItem extends OperationImpl {
 		return fileText;
 	}
 
-	public Object convertToType(Parameter parameter, Object valueObjectOrList) {
+	public Object convertToType(ServiceItemParameter parameter, Object valueObjectOrList) {
 		Object result = null;
 		try {
 			if (valueObjectOrList == null) {
@@ -193,19 +225,19 @@ public class ServiceItem extends OperationImpl {
 			}
 		} catch (Exception e) {
 			throw new ParameterException(parameter.getName(), valueObjectOrList,
-					"trying to convert to " + parameter.getSchema());
+					"trying to convert to " + parameter.getSchemaType());
 		}
 		return result;
 	}
 
-	private Object convertStringToDataType(Parameter parameter, Object value) {
+	private Object convertStringToDataType(ServiceItemParameter parameter, Object value) {
 		Object result = null;
-		if (Schema.SchemaType.STRING.equals(parameter.getSchema().getType())) {
+		if (Schema.SchemaType.STRING.toString().equalsIgnoreCase(parameter.getSchemaType())) {
 			result = value;
-		} else if (Schema.SchemaType.INTEGER.equals(parameter.getSchema().getType())) {
+		} else if (Schema.SchemaType.INTEGER.toString().equalsIgnoreCase(parameter.getSchemaType())) {
 			// TODO: long or short
 			result = new Integer(value.toString());
-		} else if (Schema.SchemaType.NUMBER.equals(parameter.getSchema().getType())) {
+		} else if (Schema.SchemaType.NUMBER.toString().equalsIgnoreCase(parameter.getSchemaType())) {
 			result = new BigDecimal(value.toString());
 		}
 		// TODO: BOOLEAN("boolean"), OBJECT("object"), ARRAY("array");
@@ -227,20 +259,49 @@ public class ServiceItem extends OperationImpl {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
-	public List<ServiceItemParameter> getServiceParameters() {
-		return serviceParameters;
-	}
-
-	public void setServiceParameters(List<ServiceItemParameter> serviceParameters) {
-		this.serviceParameters = serviceParameters;
-		this.setParameters(new ArrayList());
-		this.getParameters().addAll(serviceParameters);
-	}
 
 	@Override
 	public String toString() {
-		return "["+this.getHttpMethod() + " "+ this.getPath()+"]";
+		return "[" + this.getHttpMethod() + " " + this.getPath() + "]";
+	}
+
+	public Operation toOperation() {
+		Operation result = new OperationImpl();
+		result.setOperationId(this.getOperationId());
+		result.setDescription(this.getDescription());
+		result.setParameters(this.toParameters());
+		result.setRequestBody(this.getRequestBody());
+		result.setResponses(this.getResponses());
+		return result;
+	}
+
+	private APIResponses getResponses() {
+		APIResponses result = null;
+		if (this.getProduces() != null) {
+			result = new APIResponsesImpl();
+			APIResponse apiResponse = new APIResponseImpl();
+			apiResponse.setContent(new ContentImpl());
+			MediaType mediaType = new MediaTypeImpl();
+			apiResponse.getContent().addMediaType(this.getProduces(), mediaType);
+			result.addAPIResponse(String.valueOf(Response.Status.OK.getStatusCode()), apiResponse);
+		}
+		return result;
+	}
+
+	private RequestBody getRequestBody() {
+		RequestBody result = null;
+		if (this.getConsumes() != null) {
+			result = new RequestBodyImpl();
+			result.setContent(new ContentImpl());
+			MediaType mediaType = new MediaTypeImpl();
+			result.getContent().addMediaType(this.getConsumes(), mediaType);
+		}
+		return result;
+	}
+
+	private List<Parameter> toParameters() {
+		List<Parameter> result = this.getParameters().stream().map(p -> p.toParameter()).collect(Collectors.toList());
+		return result;
 	}
 
 }

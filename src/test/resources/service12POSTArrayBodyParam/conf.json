@@ -1,9 +1,9 @@
 {
-"id": 12,
+"operationId": 12,
 "path": "/service12POSTArrayBodyParam",
 "httpMethod":"POST",
 "sqlType":"INSERT",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"BODY",
 	"name":"id",

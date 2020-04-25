@@ -1,9 +1,9 @@
 {
-"id": 6,
+"operationId": 6,
 "path": "/service6GET2PathParam/{id}/{country}",
 "httpMethod":"GET",
 "sqlType":"SELECT",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"PATH",
 	"name":"id",

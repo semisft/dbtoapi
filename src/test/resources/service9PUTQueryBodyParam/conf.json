@@ -1,9 +1,9 @@
 {
-"id": 9,
+"operationId": 9,
 "path": "/service9PUTQueryBodyParam",
 "httpMethod":"PUT",
 "sqlType":"UPDATE",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"QUERY",
 	"name":"id",

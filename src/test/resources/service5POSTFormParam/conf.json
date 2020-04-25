@@ -1,11 +1,11 @@
 {
-"id": 5,
+"operationId": 5,
 "path": "/service5POSTFormParam",
 "httpMethod":"POST",
 "consumes":"text/plain",
 "produces":"application/json",
 "sqlType":"INSERT",
-"serviceParameters": [
+"parameters": [
 	{
 	"in":"BODY",
 	"name":"id",
