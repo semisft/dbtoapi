@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -70,7 +71,7 @@ public class ConfigService {
 		}
 		return Response.created(createdUri).build();
 	}
-	
+
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -79,7 +80,16 @@ public class ConfigService {
 		ServiceItem result = serviceConfigurator.saveServiceItem(serviceItem);
 		return Response.ok(result).build();
 	}
-	
+
+	@DELETE
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/service/{id}")
+	public Response deleteServiceItem(@PathParam("id") String id) {
+		ServiceItem result = serviceConfigurator.deleteServiceItem(id);
+		return Response.ok(result).build();
+	}
+
 	@GET
 	@Path("/connection")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -92,7 +102,7 @@ public class ConfigService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/connection/{id}")
-	public DbConfig getDbConfig(@PathParam("id") String id) {
+	public DbConfig getDbConfig(@PathParam("id") Integer id) {
 		return serviceConfigurator.getDbConfig(id);
 	}
 
@@ -119,7 +129,15 @@ public class ConfigService {
 		DbConfig result = serviceConfigurator.updateDbConfig(connection);
 		return Response.ok(result).build();
 	}
-	
+
+	@DELETE
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/connection/{id}")
+	public DbConfig deleteDbConfig(@PathParam("id") Integer id) {
+		return serviceConfigurator.deleteDbConfig(id);
+	}
+
 	@GET
 	@Path("/db_kind")
 	@Consumes(MediaType.APPLICATION_JSON)

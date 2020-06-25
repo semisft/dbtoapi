@@ -5,9 +5,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,14 +45,13 @@ public class ServiceConfigurator {
 	ServiceCatalog serviceCatalog;
 
 	Registry registry;
-	
+
 	Map<String, ConfiguredResourceClass> services = new HashMap<>();
-	Map<Integer, DbConfig> connections = new HashMap<>();
-	
+
 	public void initRegistry(final Registry registry) {
 		this.registry = registry;
 		int count = 0;
-		for (final ServiceItem serviceItem : serviceCatalog.getServiceItems()) {
+		for (final ServiceItem serviceItem : serviceCatalog.loadServices()) {
 			try {
 				startEndpoint(serviceItem);
 				count++;
@@ -75,14 +72,15 @@ public class ServiceConfigurator {
 			final ConfiguredResourceMethod method = new ConfiguredResourceMethod(result, actualMethod, actualMethod);
 
 			Operation operation = item.toOperation();
-			
+
 			if (operation.getRequestBody() != null) {
 				method.setConsumes(toMediaTypes(operation.getRequestBody().getContent().getMediaTypes().keySet()));
 			} else {
 				method.setConsumes(MediaType.APPLICATION_JSON_TYPE);
 			}
 			if (operation.getResponses() != null) {
-				final APIResponse apiResponse = operation.getResponses().getAPIResponse(String.valueOf(Response.Status.OK.getStatusCode()));
+				final APIResponse apiResponse = operation.getResponses()
+						.getAPIResponse(String.valueOf(Response.Status.OK.getStatusCode()));
 				method.setProduces(toMediaTypes(apiResponse.getContent().getMediaTypes().keySet()));
 			} else {
 				method.setProduces(MediaType.APPLICATION_JSON_TYPE);
@@ -104,7 +102,7 @@ public class ServiceConfigurator {
 
 	private MediaType[] toMediaTypes(final Set<String> mediaTypes) {
 		MediaType[] result;
-		if (mediaTypes != null && mediaTypes.size() > 0) {
+		if (mediaTypes != null && !mediaTypes.isEmpty()) {
 			result = new MediaType[mediaTypes.size()];
 			final int i = 0;
 			for (final String mediaType : mediaTypes) {
@@ -117,25 +115,33 @@ public class ServiceConfigurator {
 		return result;
 	}
 
-	public void startEndpoint(final ServiceItem serviceItem) {
+	public void stopEndpoint(final ServiceItem serviceItem, boolean forceDelete) {
 		final ConfiguredResourceClass prev = services.get(serviceItem.getOperationId());
-
-		setDbConfig(serviceItem);
-		final ConfiguredResourceClass resource = getResourceClass(serviceItem);
 		if (prev != null) {// remove previous service definition
 			registry.removeRegistrations(prev);
+			if (forceDelete) {
+				services.remove(serviceItem.getOperationId());
+			}
 		}
+	}
+
+	public void startEndpoint(final ServiceItem serviceItem) {
+		setDbConfig(serviceItem, null);
+		final ConfiguredResourceClass resource = getResourceClass(serviceItem);
+
+		stopEndpoint(serviceItem, false);
+
 		registry.addSingletonResource(resource, resource);
 		services.put(resource.getServiceItem().getOperationId(), resource);
 	}
 
-	private void setDbConfig(final ServiceItem serviceItem) {
-		serviceItem.setDbConfig(connections.get(serviceItem.getDbConfigId()));
+	private void setDbConfig(final ServiceItem serviceItem, DbConfig conn) {
+		serviceItem.setDbConfig(conn != null ? conn : serviceCatalog.getConnection(serviceItem.getDbConfigId()));
 	}
 
 	public Collection<ServiceItem> getServiceItems(final String queryStr) {
-		return serviceCatalog.getServiceItems().stream().filter(s -> queryStr == null || s.getOperationId().contains(queryStr))
-				.collect(Collectors.toList());
+		return serviceCatalog.getServiceItems().stream()
+				.filter(s -> queryStr == null || s.getOperationId().contains(queryStr)).collect(Collectors.toList());
 	}
 
 	public ServiceItem getServiceItem(final String id) {
@@ -148,12 +154,22 @@ public class ServiceConfigurator {
 		return result;
 	}
 
-	public Collection<DbConfig> getDbConfigs(final String queryStr) {
-		return connections.values();
+	public ServiceItem deleteServiceItem(String id) {
+		final ServiceItem result = serviceCatalog.deleteServiceItem(id);
+		stopEndpoint(result, true);
+		return result;
 	}
 
-	public DbConfig getDbConfig(final String id) {
-		return connections.get(id);
+	public Collection<DbConfig> getDbConfigs(final String queryStr) {
+		return serviceCatalog.getConnections();
+	}
+
+	public DbConfig getDbConfig(final Integer id) {
+		return serviceCatalog.getConnection(id);
+	}
+
+	public DbConfig deleteDbConfig(final Integer id) {
+		return serviceCatalog.deleteConnection(id);
 	}
 
 	/**
@@ -163,24 +179,18 @@ public class ServiceConfigurator {
 	 * @return
 	 */
 	public DbConfig addDbConfig(final DbConfig connection) {
-		if (connection.getId() == null) {
-			connection.setId(connections.size() + 1);
-			connection.setMinSize(1);
-			connection.setMaxSize(10);
-		}
-		connections.put(connection.getId(), connection);
-		for (final Iterator iterator = services.values().iterator(); iterator.hasNext();) {
-			final ConfiguredResourceClass cls = (ConfiguredResourceClass) iterator.next();
+		DbConfig conn = serviceCatalog.saveConnection(connection);
+		for (final ConfiguredResourceClass cls : services.values()) {
 			if (connection.getId().equals(cls.getServiceItem().getDbConfigId())) {
-				setDbConfig(cls.getServiceItem());
+				setDbConfig(cls.getServiceItem(), conn);
 			}
 		}
-		return connection;
+		return conn;
 	}
 
 	public DbConfig updateDbConfig(final DbConfig connection) {
-		connections.put(connection.getId(), connection);
-		return connection;
+		DbConfig conn = serviceCatalog.saveConnection(connection);
+		return conn;
 	}
 
 	public Collection<DbKind> getDbKinds() {
@@ -197,7 +207,7 @@ public class ServiceConfigurator {
 	public Collection<ServiceParameter> getValueNames(Object[] values) {
 		return getValueNames(values, null);
 	}
-	
+
 	public Collection<ServiceParameter> getValueNames(Object[] values, String valueFormat) {
 		List<ServiceParameter> result = new ArrayList<>();
 		for (Object value : values) {
@@ -205,8 +215,7 @@ public class ServiceConfigurator {
 			String optionValue;
 			if (valueFormat != null) {
 				optionValue = MessageFormat.format(valueFormat, valueUpper);
-			}
-			else {
+			} else {
 				optionValue = valueUpper;
 			}
 			result.add(new ServiceParameter(optionValue, valueUpper));
@@ -229,6 +238,5 @@ public class ServiceConfigurator {
 	public Collection<ServiceParameter> getSchemaTypes() {
 		return this.getValueNames(Schema.SchemaType.values());
 	}
-	
 
 }

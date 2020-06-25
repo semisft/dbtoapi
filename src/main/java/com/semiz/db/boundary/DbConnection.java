@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ import io.quarkus.datasource.runtime.DataSourceRuntimeConfig;
 @ApplicationScoped
 public class DbConnection {
 
-	public static final Integer USE_DEFAULT_DS = -999;
+	public static final Long USE_DEFAULT_DS = -999L;
 
 	private static final String PARAM_PREFIX = ":";
 
@@ -50,8 +49,7 @@ public class DbConnection {
 		DataSource ds = null;
 		if (dbConfig == null || USE_DEFAULT_DS.equals(dbConfig.getId())) {
 			ds = defaultDs;
-		} 
-		else {
+		} else {
 			String dataSourceName = "ds-" + dbConfig.getId();
 			ds = dataSources.get(dataSourceName);
 			if (ds == null) {
@@ -62,7 +60,7 @@ public class DbConnection {
 		return ds;
 	}
 
-	private DataSource newDataSource(DbConfig dbConfig, String dataSourceName) {
+	public DataSource newDataSource(DbConfig dbConfig, String dataSourceName) {
 		DataSourceBuildTimeConfig dataSourceBuildTimeConfig = new DataSourceBuildTimeConfig();
 		dataSourceBuildTimeConfig.dbKind = Optional.ofNullable(dbConfig.getDbKind());
 
@@ -89,9 +87,8 @@ public class DbConnection {
 		dataSourceJdbcRuntimeConfig.leakDetectionInterval = Optional.ofNullable(null);
 		dataSourceJdbcRuntimeConfig.maxLifetime = Optional.ofNullable(null);
 
-		DataSource ds = dbProducer.createDataSource(dataSourceName, dataSourceBuildTimeConfig, 
-				dataSourceJdbcBuildTimeConfig, dataSourceRuntimeConfig, dataSourceJdbcRuntimeConfig, 
-				null,null,null,
+		DataSource ds = dbProducer.createDataSource(dataSourceName, dataSourceBuildTimeConfig,
+				dataSourceJdbcBuildTimeConfig, dataSourceRuntimeConfig, dataSourceJdbcRuntimeConfig, null, null, null,
 				dbConfig.getDbKind(), dbConfig.getDriver(), true, false);
 		return ds;
 	}
@@ -133,8 +130,7 @@ public class DbConnection {
 					st.setObject(entry.getKey(), entry.getValue());
 				}
 			}
-			for (Iterator iterator = bodyParameters.iterator(); iterator.hasNext();) {
-				Map<String, Object> row = (Map<String, Object>) iterator.next();
+			for (Map<String, Object> row : bodyParameters) {
 				for (Entry<String, Object> entry : row.entrySet()) {
 					if (st.hasNamedParameter(entry.getKey())) {
 						lastEntry = entry;

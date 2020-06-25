@@ -1,6 +1,5 @@
 package com.semiz.entity;
 
-import java.beans.Transient;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,6 +11,14 @@ import java.util.stream.Collectors;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.annotation.JsonbTransient;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.models.Operation;
@@ -28,6 +35,7 @@ import com.semiz.db.entity.DbConfig;
 import com.semiz.db.entity.ParameterException;
 import com.semiz.db.entity.QueryResult;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.smallrye.openapi.api.models.OperationImpl;
 import io.smallrye.openapi.api.models.media.ContentImpl;
 import io.smallrye.openapi.api.models.media.MediaTypeImpl;
@@ -35,39 +43,47 @@ import io.smallrye.openapi.api.models.parameters.RequestBodyImpl;
 import io.smallrye.openapi.api.models.responses.APIResponseImpl;
 import io.smallrye.openapi.api.models.responses.APIResponsesImpl;
 
-public class ServiceItem {
+@Entity
+@Table(name = "SERV")
+public class ServiceItem extends PanacheEntity {
 
-	String operationId;
 	String description;
 
 	String path;
+
+	@Enumerated(EnumType.STRING)
 	HttpMethod httpMethod;
+
 	String consumes;
 	String produces;
 
+	@Enumerated(EnumType.STRING)
 	ServiceItemSqlType sqlType;
+
 	String sql;
 	Integer dbConfigId;
 
+	@Transient
+	@JsonbTransient
 	DbConfig dbConfig;
 
-	List<ServiceItemParameter> parameters;
+	@OneToMany(mappedBy = "serviceItem", cascade = CascadeType.ALL, orphanRemoval = true)
+	List<ServiceItemParameter> parameters = new ArrayList<>();
 
 	public ServiceItem() {
 
 	}
 
-	public ServiceItem(String operationId) {
-		this();
-		this.setOperationId(operationId);
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getOperationId() {
-		return operationId;
-	}
-
-	public void setOperationId(String operationId) {
-		this.operationId = operationId;
+		return Long.toString(id);
 	}
 
 	public String getDescription() {
@@ -302,6 +318,37 @@ public class ServiceItem {
 	private List<Parameter> toParameters() {
 		List<Parameter> result = this.getParameters().stream().map(p -> p.toParameter()).collect(Collectors.toList());
 		return result;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ServiceItemParameter other = (ServiceItemParameter) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	public void addParameter(ServiceItemParameter param) {
+		param.setServiceItem(this);
+		this.getParameters().add(param);
+
 	}
 
 }

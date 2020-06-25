@@ -4,11 +4,15 @@ import java.io.InputStream;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-public class DbConfig {
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
-	Integer id;
+@Entity
+@Table(name = "SERVCON")
+public class DbConfig extends PanacheEntity {
 
 	@NotNull
 	String name;
@@ -34,16 +38,16 @@ public class DbConfig {
 
 	}
 
-	public DbConfig(Integer id) {
+	public DbConfig(Long id) {
 		this();
-		this.setId(id);
+		this.id = id;
 	}
 
-	public Integer getId() {
-		return id;
+	public Long getId() {
+		return this.id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

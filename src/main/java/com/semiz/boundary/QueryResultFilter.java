@@ -28,9 +28,9 @@ import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.jboss.logging.Logger;
 
 import com.semiz.db.entity.QueryResult;
+import com.semiz.entity.ExecParameter;
 import com.semiz.entity.ServiceCatalog;
 import com.semiz.entity.ServiceItem;
-import com.semiz.entity.ExecParameter;
 
 @Provider
 public class QueryResultFilter implements ContainerResponseFilter {
@@ -51,11 +51,11 @@ public class QueryResultFilter implements ContainerResponseFilter {
 	public void filter(ContainerRequestContext context, ContainerResponseContext responseContext) throws IOException {
 		final String method = context.getMethod();
 		final String path = uriInfo.getPath();
-		LOG.info(path+".");
+		LOG.info(path + ".");
 		Object confId = responseContext.getEntity();
 		if (confId != null && ServiceItem.class.equals(confId.getClass())) {
 			QueryResult result = null;
-			ServiceItem item = (ServiceItem)confId;
+			ServiceItem item = (ServiceItem) confId;
 			if (item != null) {
 				List<Map<String, Object>> bodyParameters = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 							.getOrDefault(MediaType.CHARSET_PARAMETER, StandardCharsets.UTF_8.name()));
 				}
 				String body = IOUtils.toString(context.getEntityStream(), charset);
-				if (body != null && body.length() > 0) {
+				if (body != null && !body.isEmpty()) {
 					if (context.getMediaType() != null
 							&& MediaType.APPLICATION_JSON_TYPE.getType().equals(context.getMediaType().getType())
 							&& (body.startsWith("{") || body.startsWith("["))) {
@@ -102,7 +102,7 @@ public class QueryResultFilter implements ContainerResponseFilter {
 				}
 
 				result = catalog.getSqlExecResult(item, param);
-				//metricRegistry.counter(item.getOperationId()).inc();
+				// metricRegistry.counter(item.getOperationId()).inc();
 
 			} else {
 				result = QueryResult.createError(uriInfo.getPath(), method, context.getMediaType());
